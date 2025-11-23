@@ -11,18 +11,11 @@ contract DeployScript is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        // Deploy token
-        PredictaToken token = new PredictaToken();
-        console.log("PredictaToken deployed at:", address(token));
+        address token = 0xdE9e4C3ce781b4bA68120d6261cbad65ce0aB00b;
 
         // Deploy market contract
-        PredictionMarketV2 market = new PredictionMarketV2(address(token));
+        PredictionMarketV2 market = new PredictionMarketV2(token);
         console.log("PredictionMarketV2 deployed at:", address(market));
-
-        // Fund the token contract for faucet
-        uint256 faucetAmount = 10_000_000 * 10 ** 18; // 10M tokens
-        token.transfer(address(token), faucetAmount);
-        console.log("Funded faucet with:", faucetAmount);
 
         vm.stopBroadcast();
     }
