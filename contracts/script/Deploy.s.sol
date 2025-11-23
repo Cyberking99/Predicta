@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Script.sol";
-import "../src/BettingToken.sol";
+import "../src/PredictaToken.sol";
 import "../src/PredictionMarketV2.sol";
 
 contract DeployScript is Script {
@@ -12,8 +12,8 @@ contract DeployScript is Script {
         vm.startBroadcast(deployerPrivateKey);
         
         // Deploy token
-        BettingToken token = new BettingToken();
-        console.log("BettingToken deployed at:", address(token));
+        PredictaToken token = new PredictaToken();
+        console.log("PredictaToken deployed at:", address(token));
         
         // Deploy market contract
         PredictionMarketV2 market = new PredictionMarketV2(address(token));

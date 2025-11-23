@@ -29,7 +29,7 @@ contract PredictionMarketV2 is AccessControl, Ownable, Pausable, ReentrancyGuard
     
     // ============ State Variables ============
     
-    IERC20 public bettingToken;
+    IERC20 public bettingToken; // Deprecated: kept for backward compatibility
     address public previousBettingToken;
     address public feeCollector;
     address public freeClaimHandler;
@@ -44,6 +44,10 @@ contract PredictionMarketV2 is AccessControl, Ownable, Pausable, ReentrancyGuard
     uint256 public totalWithdrawnPlatformFees;
     
     address[] public allParticipants;
+    
+    // Token whitelist
+    mapping(address => bool) public whitelistedTokens;
+    address[] public whitelistedTokenList;
 
     // ============ Enums ============
     
@@ -84,6 +88,7 @@ contract PredictionMarketV2 is AccessControl, Ownable, Pausable, ReentrancyGuard
         uint256 platformFeesCollected;
         bool adminLiquidityClaimed;
         bool earlyResolutionAllowed;
+        address bettingToken; // Token used for this market
     }
     
     struct Option {
@@ -270,13 +275,26 @@ contract PredictionMarketV2 is AccessControl, Ownable, Pausable, ReentrancyGuard
         uint256 bound,
         uint256 actualTotal
     );
+    
+    event TokenWhitelisted(
+        address indexed token,
+        address indexed admin
+    );
+    
+    event TokenRemovedFromWhitelist(
+        address indexed token,
+        address indexed admin
+    );
 
     // ============ Constructor ============
     
     constructor(address _bettingToken) Ownable(msg.sender) {
         require(_bettingToken != address(0), "Invalid token address");
-        bettingToken = IERC20(_bettingToken);
         feeCollector = msg.sender;
+        
+        // Automatically whitelist the initial betting token
+        whitelistedTokens[_bettingToken] = true;
+        whitelistedTokenList.push(_bettingToken);
         
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(QUESTION_CREATOR_ROLE, msg.sender);
@@ -314,32 +332,7 @@ contract PredictionMarketV2 is AccessControl, Ownable, Pausable, ReentrancyGuard
 
     // ============ Market Creation ============
     
-    function createMarket(
-        string memory _question,
-        string memory _description,
-        string[] memory _optionNames,
-        string[] memory _optionDescriptions,
-        uint256 _duration,
-        MarketCategory _category,
-        MarketType _marketType,
-        uint256 _initialLiquidity,
-        bool _earlyResolutionAllowed
-    ) external whenNotPaused nonReentrant returns (uint256) {
-        return _createMarket(
-            _question,
-            _description,
-            _optionNames,
-            _optionDescriptions,
-            _duration,
-            _category,
-            _marketType,
-            _initialLiquidity,
-            _earlyResolutionAllowed,
-            FreeMarketParams(0, 0)
-        );
-    }
-    
-    function createMarket(
+    function createMarketWithToken(
         string memory _question,
         string memory _description,
         string[] memory _optionNames,
@@ -349,8 +342,10 @@ contract PredictionMarketV2 is AccessControl, Ownable, Pausable, ReentrancyGuard
         MarketType _marketType,
         uint256 _initialLiquidity,
         bool _earlyResolutionAllowed,
-        FreeMarketParams memory _freeParams
+        FreeMarketParams memory _freeParams,
+        address _bettingToken
     ) external whenNotPaused nonReentrant returns (uint256) {
+        require(whitelistedTokens[_bettingToken], "Token not whitelisted");
         return _createMarket(
             _question,
             _description,
@@ -361,7 +356,8 @@ contract PredictionMarketV2 is AccessControl, Ownable, Pausable, ReentrancyGuard
             _marketType,
             _initialLiquidity,
             _earlyResolutionAllowed,
-            _freeParams
+            _freeParams,
+            _bettingToken
         );
     }
 
@@ -375,19 +371,21 @@ contract PredictionMarketV2 is AccessControl, Ownable, Pausable, ReentrancyGuard
         MarketType _marketType,
         uint256 _initialLiquidity,
         bool _earlyResolutionAllowed,
-        FreeMarketParams memory _freeParams
+        FreeMarketParams memory _freeParams,
+        address _bettingToken
     ) internal returns (uint256) {
         require(bytes(_question).length > 0, "Question required");
         require(_optionNames.length >= 2, "At least 2 options required");
         require(_optionNames.length == _optionDescriptions.length, "Options mismatch");
         require(_duration >= MIN_MARKET_DURATION && _duration <= MAX_MARKET_DURATION, "Invalid duration");
         require(_initialLiquidity > 0, "Initial liquidity required");
+        require(whitelistedTokens[_bettingToken], "Token not whitelisted");
         
         uint256 marketId = marketCount++;
         uint256 endTime = block.timestamp + _duration;
         
         // Transfer initial liquidity
-        require(bettingToken.transferFrom(msg.sender, address(this), _initialLiquidity), "Transfer failed");
+        require(IERC20(_bettingToken).transferFrom(msg.sender, address(this), _initialLiquidity), "Transfer failed");
         
         // Calculate LMSR B parameter
         uint256 lmsrB = _calculateLMSRB(_initialLiquidity, _optionNames.length);
@@ -412,7 +410,8 @@ contract PredictionMarketV2 is AccessControl, Ownable, Pausable, ReentrancyGuard
             userLiquidity: 0,
             platformFeesCollected: 0,
             adminLiquidityClaimed: false,
-            earlyResolutionAllowed: _earlyResolutionAllowed
+            earlyResolutionAllowed: _earlyResolutionAllowed,
+            bettingToken: _bettingToken
         });
 
         // Initialize options with equal shares from initial liquidity
@@ -494,7 +493,8 @@ contract PredictionMarketV2 is AccessControl, Ownable, Pausable, ReentrancyGuard
         uint256 totalPayment = totalCost + fee;
         
         // Transfer tokens
-        require(bettingToken.transferFrom(msg.sender, address(this), totalPayment), "Transfer failed");
+        IERC20 marketToken = IERC20(markets[_marketId].bettingToken);
+        require(marketToken.transferFrom(msg.sender, address(this), totalPayment), "Transfer failed");
         
         // Update state
         options[_marketId][_optionId].totalShares += _quantity;
@@ -590,7 +590,8 @@ contract PredictionMarketV2 is AccessControl, Ownable, Pausable, ReentrancyGuard
         userPortfolios[msg.sender].tradeCount++;
         
         // Transfer proceeds
-        require(bettingToken.transfer(msg.sender, netProceeds), "Transfer failed");
+        IERC20 marketToken = IERC20(markets[_marketId].bettingToken);
+        require(marketToken.transfer(msg.sender, netProceeds), "Transfer failed");
         
         // Record trade
         Trade memory trade = Trade({
@@ -755,7 +756,8 @@ contract PredictionMarketV2 is AccessControl, Ownable, Pausable, ReentrancyGuard
         // Update portfolio
         userPortfolios[msg.sender].totalWinnings += payout;
         
-        require(bettingToken.transfer(msg.sender, payout), "Transfer failed");
+        IERC20 marketToken = IERC20(markets[_marketId].bettingToken);
+        require(marketToken.transfer(msg.sender, payout), "Transfer failed");
         
         emit Claimed(_marketId, msg.sender, payout);
     }
@@ -803,7 +805,8 @@ contract PredictionMarketV2 is AccessControl, Ownable, Pausable, ReentrancyGuard
         markets[_marketId].adminLiquidityClaimed = true;
         uint256 amount = markets[_marketId].adminInitialLiquidity;
         
-        require(bettingToken.transfer(msg.sender, amount), "Transfer failed");
+        IERC20 marketToken = IERC20(markets[_marketId].bettingToken);
+        require(marketToken.transfer(msg.sender, amount), "Transfer failed");
         
         emit AdminLiquidityWithdrawn(_marketId, msg.sender, amount);
     }
@@ -824,11 +827,32 @@ contract PredictionMarketV2 is AccessControl, Ownable, Pausable, ReentrancyGuard
         emit PlatformFeesWithdrawn(collector, amount);
     }
     
+    function withdrawPlatformFeesForToken(address _token, uint256 _amount)
+        external
+        onlyOwner
+        nonReentrant {
+        
+        require(whitelistedTokens[_token], "Token not whitelisted");
+        require(_amount > 0, "Amount must be > 0");
+        
+        address collector = feeCollector != address(0) ? feeCollector : owner();
+        require(IERC20(_token).transfer(collector, _amount), "Transfer failed");
+        
+        emit PlatformFeesWithdrawn(collector, _amount);
+    }
+    
     function emergencyWithdraw(uint256 _amount)
         external
         onlyOwner {
         
         require(bettingToken.transfer(owner(), _amount), "Transfer failed");
+    }
+    
+    function emergencyWithdrawToken(address _token, uint256 _amount)
+        external
+        onlyOwner {
+        
+        require(IERC20(_token).transfer(owner(), _amount), "Transfer failed");
     }
 
     // ============ Configuration Functions ============
@@ -847,6 +871,47 @@ contract PredictionMarketV2 is AccessControl, Ownable, Pausable, ReentrancyGuard
     
     function setFreeClaimHandler(address _handler) external onlyOwner {
         freeClaimHandler = _handler;
+    }
+    
+    // ============ Token Whitelist Management ============
+    
+    function addWhitelistedToken(address _token) external onlyOwner {
+        require(_token != address(0), "Invalid token address");
+        require(!whitelistedTokens[_token], "Token already whitelisted");
+        
+        whitelistedTokens[_token] = true;
+        whitelistedTokenList.push(_token);
+        
+        emit TokenWhitelisted(_token, msg.sender);
+    }
+    
+    function removeWhitelistedToken(address _token) external onlyOwner {
+        require(whitelistedTokens[_token], "Token not whitelisted");
+        
+        whitelistedTokens[_token] = false;
+        
+        // Remove from array
+        for (uint256 i = 0; i < whitelistedTokenList.length; i++) {
+            if (whitelistedTokenList[i] == _token) {
+                whitelistedTokenList[i] = whitelistedTokenList[whitelistedTokenList.length - 1];
+                whitelistedTokenList.pop();
+                break;
+            }
+        }
+        
+        emit TokenRemovedFromWhitelist(_token, msg.sender);
+    }
+    
+    function getWhitelistedTokens() external view returns (address[] memory) {
+        return whitelistedTokenList;
+    }
+    
+    function isTokenWhitelisted(address _token) external view returns (bool) {
+        return whitelistedTokens[_token];
+    }
+    
+    function getMarketToken(uint256 _marketId) external view marketExists(_marketId) returns (address) {
+        return markets[_marketId].bettingToken;
     }
     
     function pause() external onlyOwner {
