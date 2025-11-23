@@ -85,6 +85,11 @@ function emergencyWithdrawToken(address _token, uint256 _amount) external onlyOw
 - Markets created without specifying a token use the default `bettingToken`
 - No changes required to existing frontend/backend integrations
 
+### Compilation Requirements
+- The contract requires compilation with `via_ir = true` in foundry.toml due to complexity
+- This is already configured in the project's foundry.toml file
+- Compilation may take longer (~45 seconds) but produces optimized bytecode
+
 ## Usage Example
 
 ```solidity
