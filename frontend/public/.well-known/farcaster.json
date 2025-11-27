@@ -1,0 +1,49 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjIzOTM5NiwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDRENEU1MjIzODRkNkYxMDkwYkZENEM0NTI3YTdkNTJERmQyMGJDYTMifQ",
+    "payload": "eyJkb21haW4iOiJidXN0ZXItbWt0LnZlcmNlbC5hcHAifQ",
+    "signature": "MHg4ZmE0MGM1MGRiN2RkNjEyZGIzMzNlNzg1NTA0YjZhNzg4OTJjNTQ4YTA2ODEyNWIzOTI2M2RjMThjMmM4N2Y4MGQ0MWY4NjYyMWE5NjAzNjlmMDU4ZWIzNWRiOTgwYjRlZDY1YjI2YjFlZWE3NTYwNGZlZmQ0NzI1ZGQ3NWUzZDFi"
+  },
+  "frame": {
+    "version": "1",
+    "name": "POLICAST",
+    "iconUrl": "https://buster-mkt.vercel.app/icon2.jpg",
+    "homeUrl": "https://buster-mkt.vercel.app",
+    "imageUrl": "https://buster-mkt.vercel.app/icon.jpg",
+    "castShareUrl": "https://buster-mkt.vercel.app/share",
+    "buttonTitle": "Explore Markets🏪",
+    "splashImageUrl": "https://buster-mkt.vercel.app/icon.jpg",
+    "splashBackgroundColor": "#131E2A",
+    "webhookUrl":"https://api.neynar.com/f/app/7081555f-827d-4577-8676-f3e0443d4016/event",
+    "subtitle": "PREDICTION MARKET",
+    "description": "Bet on political news and policies",
+    "primaryCategory": "finance",
+    "tags": [
+      "polimarket",
+      "predictionmarket",
+      "airdrop",
+      "politics",
+      "farcaster"
+    ],
+    "tagline": "Bet on political markets",
+    "ogUrl": "https://buster-mkt.vercel.app",
+    "ogTitle": "POLICAST",
+    "ogDescription": "Bet on political news and policies",
+    "ogImage": "https://buster-mkt.vercel.app/icon.jpg",
+    "noindex": false,
+    "permissions": ["cast:read"],
+    "notifications": {
+      "enabled": true,
+      "categories": [
+        {
+          "id": "welcome",
+          "name": "Welcome Messages"
+        }
+      ]
+    },
+    "author": "Oxdev.base.eth"
+  },
+  "baseBuilder": {
+    "allowedAddresses": ["0x02a9093dEB73E9E524657492429377117C70e097"]
+  }
+}

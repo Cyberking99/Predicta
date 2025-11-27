@@ -1,53 +1,67 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { UserBalance } from "@/components/user-balance";
-import { Zap } from "lucide-react";
+// src/app/page.tsx
+import { EnhancedPredictionMarketDashboard } from "@/components/enhanced-prediction-market-dashboard";
+import { OnboardingModal } from "@/components/OnboardingModal";
+import { Suspense } from "react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Policast - Political Prediction Markets | Trade on Politics",
+  description: "Join the decentralized political prediction market. Bet on election outcomes, policy decisions, and political events with crypto. Secure, transparent, and community-driven.",
+  keywords: ["political prediction markets", "election betting", "political trading", "crypto betting", "decentralized markets", "blockchain predictions"],
+  openGraph: {
+    title: "Policast - Political Prediction Markets",
+    description: "Join the decentralized political prediction market. Bet on election outcomes, policy decisions, and political events with crypto.",
+    images: [
+      {
+        url: "/icon.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Policast - Political Prediction Markets",
+      },
+    ],
+    type: "website",
+    url: "https://buster-mkt.vercel.app",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Policast - Political Prediction Markets",
+    description: "Join the decentralized political prediction market. Bet on election outcomes, policy decisions, and political events with crypto.",
+    images: ["/icon.jpg"],
+  },
+  other: {
+    "fc:miniapp": JSON.stringify({
+      version: "1",
+      imageUrl: "https://buster-mkt.vercel.app/icon.jpg",
+      button: {
+        title: "Explore Markets🏪",
+        action: {
+          type: "launch_miniapp",
+          name: "Policast",
+          iconUrl: "https://buster-mkt.vercel.app/icon.png",
+          url: "https://buster-mkt.vercel.app",
+          splashImageUrl: "https://buster-mkt.vercel.app/icon.jpg",
+          splashBackgroundColor: "#131E2A",
+          state: "marketId",
+        },
+      },
+    }),
+  },
+};
 
 export default function Home() {
   return (
-<main className="flex-1">
-  {/* Hero Section */}
-  <section className="relative py-20 lg:py-32">
-    <div className="container px-4 mx-auto max-w-7xl">
-      <div className="text-center max-w-4xl mx-auto">
-        {/* Badge */}
-        <div
-          className="inline-flex items-center gap-2 px-3 py-1 mb-8 text-sm font-medium bg-primary/10 text-primary rounded-full border border-primary/20"
-        >
-          <Zap className="h-4 w-4" />
-          Built on Celo
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen flex-col items-center justify-center">
+          {/* You can put a more sophisticated loading skeleton here if you like */}
+          <p className="text-lg text-gray-600 dark:text-gray-300">
+            Loading Dashboard...
+          </p>
         </div>
-
-        {/* Main Heading */}
-        <h1
-          className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6"
-        >
-          Welcome to{" "}
-          <span className="text-primary">my-celo-app</span>
-        </h1>
-
-        {/* Subtitle */}
-        <p
-          className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed"
-        >
-          Start building your decentralized application on Celo. Fast and secure blockchain for everyone.
-        </p>
-
-        {/* User Balance Display */}
-        <UserBalance />
-
-        {/* CTA Buttons */}
-        <div
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
-        >
-          <Button size="lg" className="px-8 py-3 text-base font-medium">
-            Get Started
-          </Button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-</main>
+      }
+    >
+      <EnhancedPredictionMarketDashboard />
+      <OnboardingModal /> {/* <-- 2b. Render the modal */}
+    </Suspense>
   );
 }
