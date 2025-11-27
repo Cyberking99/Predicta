@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, Heart, Reply, Send, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useFarcasterUser } from "@/hooks/useFarcasterUser";
+
 
 interface Comment {
   id: string;
@@ -16,9 +16,7 @@ interface Comment {
   user?: {
     id: string;
     address: string;
-    fid?: string;
     username?: string;
-    pfpUrl?: string;
   };
   createdAt: string;
   parentId?: string;
@@ -66,11 +64,10 @@ const CommentItem = ({
 
   return (
     <div
-      className={`${
-        level > 0
-          ? "ml-4 md:ml-6 border-l-2 border-gray-100 dark:border-gray-700 pl-3 md:pl-4"
-          : ""
-      }`}
+      className={`${level > 0
+        ? "ml-4 md:ml-6 border-l-2 border-gray-100 dark:border-gray-700 pl-3 md:pl-4"
+        : ""
+        }`}
     >
       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 md:p-4 mb-2 md:mb-3">
         <div className="flex items-start justify-between mb-2">
@@ -85,12 +82,9 @@ const CommentItem = ({
             <div>
               <span className="text-xs md:text-sm font-medium text-gray-900 dark:text-gray-100">
                 {comment.user?.username ||
-                  (comment.user?.fid
-                    ? `FID: ${comment.user.fid}`
-                    : `${comment.user?.address?.slice(
-                        0,
-                        6
-                      )}...${comment.user?.address?.slice(-4)}`)}
+                  `${comment.user?.address?.slice(0, 6)}...${comment.user?.address?.slice(
+                    -4
+                  )}`}
               </span>
               <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 md:ml-2">
                 {formatTimeAgo(comment.createdAt)}
@@ -108,11 +102,10 @@ const CommentItem = ({
             variant="ghost"
             size="sm"
             onClick={() => onLike(comment.id)}
-            className={`text-xs ${
-              hasLiked
-                ? "text-red-600 dark:text-red-400"
-                : "text-gray-500 dark:text-gray-400"
-            } hover:text-red-600 dark:hover:text-red-400 px-2 py-1 h-auto`}
+            className={`text-xs ${hasLiked
+              ? "text-red-600 dark:text-red-400"
+              : "text-gray-500 dark:text-gray-400"
+              } hover:text-red-600 dark:hover:text-red-400 px-2 py-1 h-auto`}
           >
             <Heart
               className={`w-3 h-3 mr-1 ${hasLiked ? "fill-current" : ""}`}
@@ -185,7 +178,6 @@ export function CommentSystem({
   className,
 }: CommentSystemProps) {
   const { address } = useAccount();
-  const farcasterUser = useFarcasterUser();
   const { toast } = useToast();
 
   const [comments, setComments] = useState<Comment[]>([]);
@@ -198,9 +190,8 @@ export function CommentSystem({
   // Fetch comments
   const fetchComments = useCallback(async () => {
     try {
-      const url = `/api/comments?marketId=${marketId}&version=${version}${
-        address ? `&userAddress=${address}` : ""
-      }`;
+      const url = `/api/comments?marketId=${marketId}&version=${version}${address ? `&userAddress=${address}` : ""
+        }`;
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
@@ -232,10 +223,8 @@ export function CommentSystem({
           content: content.trim(),
           parentId,
           author: {
-            fid: farcasterUser?.fid || "unknown",
-            username: farcasterUser?.username || `User ${address.slice(0, 6)}`,
-            pfpUrl: farcasterUser?.pfpUrl,
             address,
+            username: `User ${address.slice(0, 6)}`,
           },
         }),
       });
@@ -421,9 +410,8 @@ export function CommentSystem({
                 {replyingTo === comment.id && (
                   <div className="ml-4 md:ml-6 mt-3 p-3 md:p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                     <Textarea
-                      placeholder={`Reply to ${
-                        comment.user?.username || "user"
-                      }...`}
+                      placeholder={`Reply to ${comment.user?.username || "user"
+                        }...`}
                       value={replyContent}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                         setReplyContent(e.target.value)

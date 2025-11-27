@@ -5,7 +5,7 @@ import { Home, Clock, Trophy, User, Info, Settings } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
-import { sdk } from "@farcaster/miniapp-sdk";
+
 import { useUserRoles } from "@/hooks/useUserRoles";
 import { toast } from "@/hooks/use-toast";
 
@@ -68,19 +68,12 @@ export function Footer() {
     "eip155:8453/erc20:0x53Bd7F868764333de01643ca9102ee4297eFA3cb";
 
   const handleBuyBuster = async (sellToken: string) => {
-    try {
-      await sdk.actions.swapToken({
-        sellToken,
-        buyToken: BUSTER_CAIP19,
-      });
-    } catch (error) {
-      console.error("Failed to open swap:", error);
-      toast({
-        title: "Swap Failed",
-        description: "Unable to open token swap. Please try again.",
-        variant: "destructive",
-      });
-    }
+    // Placeholder for buy logic
+    console.log("Buy Buster with", sellToken);
+    toast({
+      title: "Coming Soon",
+      description: "In-app swapping is currently disabled.",
+    });
   };
 
   return (

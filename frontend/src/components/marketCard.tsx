@@ -18,7 +18,7 @@ import { MarketResolved } from "./market-resolved";
 import { MarketPending } from "./market-pending";
 import { MarketBuyInterface } from "./market-buy-interface";
 import { MarketSharesDisplay } from "./market-shares-display";
-import { sdk } from "@farcaster/miniapp-sdk";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faShareFromSquare,
@@ -109,9 +109,9 @@ export function MarketCard({ index, market }: MarketCardProps) {
 
   const sharesBalance: SharesBalance | undefined = sharesBalanceData
     ? {
-        optionAShares: sharesBalanceData[0],
-        optionBShares: sharesBalanceData[1],
-      }
+      optionAShares: sharesBalanceData[0],
+      optionBShares: sharesBalanceData[1],
+    }
     : undefined;
 
   // Fetch comment count
@@ -140,17 +140,8 @@ export function MarketCard({ index, market }: MarketCardProps) {
     process.env.NEXT_PUBLIC_APP_URL || "https://buster-mkt.vercel.app";
   const marketPageUrl = `${appUrl}/market/${index}/details`;
   const handleShare = async () => {
-    try {
-      await sdk.actions.composeCast({
-        text: `Check out this market on Policast: ${
-          marketData?.question || `Market ${index}`
-        }`,
-        embeds: [marketPageUrl],
-      });
-    } catch (error) {
-      console.error("Failed to compose cast:", error);
-      // Optionally, show a toast notification to the user
-    }
+    // Placeholder for share logic
+    console.log("Share market", index);
   };
 
   return (
@@ -185,8 +176,8 @@ export function MarketCard({ index, market }: MarketCardProps) {
       </CardContent>
       <CardFooter className="flex justify-between items-center pt-4">
         {sharesBalance &&
-        (sharesBalance.optionAShares > 0n ||
-          sharesBalance.optionBShares > 0n) ? (
+          (sharesBalance.optionAShares > 0n ||
+            sharesBalance.optionBShares > 0n) ? (
           <MarketSharesDisplay
             market={marketData}
             sharesBalance={sharesBalance}

@@ -18,8 +18,6 @@ import {
   V2contractAbi,
   tokenAddress,
   tokenAbi,
-  PolicastViews,
-  PolicastViewsAbi,
 } from "@/constants/contract";
 import { encodeFunctionData } from "viem";
 import { Loader2, TrendingDown } from "lucide-react";
@@ -145,27 +143,6 @@ export function MarketV2SellInterface({
     functionName: "decimals",
   });
 
-  // Fetch token prices from PolicastViews
-  const { data: marketOddsRaw, refetch: refetchMarketOdds } = useReadContract({
-    address: PolicastViews,
-    abi: PolicastViewsAbi,
-    functionName: "getMarketOdds",
-    args: [BigInt(marketId)],
-    query: {
-      refetchInterval: 2000, // Refresh every 2 seconds
-    },
-  }) as unknown as {
-    data?: readonly bigint[];
-    refetch: () => Promise<unknown>;
-  };
-
-  const tokenPrices = useMemo(() => {
-    if (!marketOddsRaw) return undefined;
-    return marketOddsRaw.map((probability) =>
-      probabilityToTokenPrice(probability as bigint)
-    );
-  }, [marketOddsRaw]);
-
   // Fetch current price for selected option
   const { data: optionData, refetch: refetchOptionData } = useReadContract({
     address: V2contractAddress,
@@ -178,45 +155,30 @@ export function MarketV2SellInterface({
   // Compute quantity in 1e18 shares
   const quantityInShares = useMemo(() => sharesToWei(sellAmount), [sellAmount]);
 
-  // On-chain sell quote (rawRefund, fee, netRefund, avgPricePerShare)
-  const { data: sellQuote } = useReadContract({
-    address: PolicastViews,
-    abi: PolicastViewsAbi,
-    functionName: "quoteSell",
-    args:
-      selectedOptionId === null || quantityInShares <= 0n
-        ? undefined
-        : [BigInt(marketId), BigInt(selectedOptionId), quantityInShares],
-    query: {
-      enabled: selectedOptionId !== null && quantityInShares > 0n,
-      refetchInterval: 2000,
-    },
-  });
-
-  const rawRefundFromQuote = (sellQuote?.[0] ?? 0n) as bigint;
-  const feeFromQuote = (sellQuote?.[1] ?? 0n) as bigint;
-  const netRefundFromQuote = (sellQuote?.[2] ?? 0n) as bigint;
-  const avgPricePerShareFromQuote = (sellQuote?.[3] ?? 0n) as bigint;
-
-  // Calculate estimated revenue using token prices from PolicastViews
+  // Calculate estimated revenue using token prices derived from option data
   const estimatedRevenue = useMemo(() => {
-    // Prefer exact on-chain quote if available
-    if (netRefundFromQuote > 0n) return netRefundFromQuote;
-
-    // Fallback to simple linear estimate if quote not ready
     if (
-      !tokenPrices ||
       selectedOptionId === null ||
       !sellAmount ||
-      parseFloat(sellAmount) <= 0
+      parseFloat(sellAmount) <= 0 ||
+      !optionData
     )
       return 0n;
-    const tokenPrice = (tokenPrices as readonly bigint[])[selectedOptionId];
+
+    // optionData[4] is currentPrice (probability)
+    const probability = (optionData as any)[4] as bigint;
+    const tokenPrice = probabilityToTokenPrice(probability);
+
     const quantity = sharesToWei(sellAmount);
     const rawRefund = (tokenPrice * quantity) / 1000000000000000000n;
-    const fee = (rawRefund * 200n) / 10000n;
+    const fee = (rawRefund * 200n) / 10000n; // 2% fee estimate
     return rawRefund - fee;
-  }, [netRefundFromQuote, tokenPrices, selectedOptionId, sellAmount]);
+  }, [optionData, selectedOptionId, sellAmount]);
+
+  const avgPricePerShareFromQuote = useMemo(() => {
+    if (!estimatedRevenue || !quantityInShares || quantityInShares === 0n) return 0n;
+    return (estimatedRevenue * 1000000000000000000n) / quantityInShares;
+  }, [estimatedRevenue, quantityInShares]);
 
   // Calculate minimum price with slippage protection (uses SELL_SLIPPAGE_BPS)
   const calculateMinPrice = useCallback((pricePerShare: bigint): bigint => {
@@ -240,19 +202,14 @@ export function MarketV2SellInterface({
 
       const sellAmountBigInt = quantityInShares;
 
-      // Use on-chain avg price per share when available
+      // Use estimated revenue to calculate avg price per share
       const avgPricePerShare =
-        avgPricePerShareFromQuote > 0n
-          ? avgPricePerShareFromQuote
-          : sellAmountBigInt > 0n
+        sellAmountBigInt > 0n
           ? ((estimatedRevenue as bigint) * 1000000000000000000n) /
-            sellAmountBigInt
+          sellAmountBigInt
           : 0n;
       const minPricePerShare = calculateMinPrice(avgPricePerShare);
-      const minTotalProceeds =
-        netRefundFromQuote > 0n
-          ? withNegBuffer(netRefundFromQuote)
-          : withNegBuffer(estimatedRevenue as bigint);
+      const minTotalProceeds = withNegBuffer(estimatedRevenue as bigint);
 
       console.log("=== V2 SELL TRANSACTION ===");
       console.log("Market ID:", marketId);
@@ -287,10 +244,10 @@ export function MarketV2SellInterface({
     sellAmount,
     tokenDecimals,
     estimatedRevenue,
-    sellQuote,
     calculateMinPrice,
     marketId,
     writeContractAsync,
+    quantityInShares
   ]);
 
   // Handle transaction confirmation
@@ -320,7 +277,7 @@ export function MarketV2SellInterface({
 
       // Refresh data
       refetchOptionData();
-      refetchMarketOdds();
+
 
       // Reset after delay
       setTimeout(() => {
@@ -336,7 +293,6 @@ export function MarketV2SellInterface({
     marketId,
     onSellComplete,
     refetchOptionData,
-    refetchMarketOdds,
   ]);
 
   // Handle errors
@@ -367,10 +323,8 @@ export function MarketV2SellInterface({
   }, [sellingStep, selectedOptionId, error]);
 
   const currentPrice =
-    tokenPrices && selectedOptionId !== null
-      ? tokenPrices[selectedOptionId] ?? 0n
-      : optionData?.[4]
-      ? probabilityToTokenPrice(optionData[4] as bigint)
+    selectedOptionId !== null
+      ? probabilityToTokenPrice(market.options[selectedOptionId].currentPrice)
       : 0n;
   const userSharesForOption =
     selectedOptionId !== null ? userShares[selectedOptionId] || 0n : 0n;
@@ -384,9 +338,7 @@ export function MarketV2SellInterface({
   // Get options with user shares using token prices
   const optionsWithShares = market.options
     .map((option, index) => {
-      const tokenPrice = tokenPrices
-        ? tokenPrices[index] ?? 0n
-        : probabilityToTokenPrice(option.currentPrice);
+      const tokenPrice = probabilityToTokenPrice(option.currentPrice);
 
       return {
         id: index,

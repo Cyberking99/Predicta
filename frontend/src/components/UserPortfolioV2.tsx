@@ -11,8 +11,6 @@ import {
   V2contractAbi,
   tokenAddress as defaultTokenAddress,
   tokenAbi as defaultTokenAbi,
-  PolicastViews,
-  PolicastViewsAbi,
 } from "@/constants/contract";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -106,17 +104,17 @@ export function UserPortfolioV2() {
     refetch: refetchPortfolio,
   } = useUserPortfolio(accountAddress!);
 
-  // Fetch accurate unrealized PnL from PolicastViews
-  const { data: calculatedUnrealizedPnL } = (useReadContract as any)({
-    address: PolicastViews,
-    abi: PolicastViewsAbi,
-    functionName: "calculateUnrealizedPnL",
-    args: [accountAddress as `0x${string}`],
-    query: {
-      enabled: !!accountAddress,
-      refetchInterval: 10000,
-    },
-  });
+  // Fetch accurate unrealized PnL from PolicastViews - REMOVED
+  // const { data: calculatedUnrealizedPnL } = (useReadContract as any)({
+  //   address: PolicastViews,
+  //   abi: PolicastViewsAbi,
+  //   functionName: "calculateUnrealizedPnL",
+  //   args: [accountAddress as `0x${string}`],
+  //   query: {
+  //     enabled: !!accountAddress,
+  //     refetchInterval: 10000,
+  //   },
+  // });
 
   useEffect(() => {
     if (symbolData) setTokenSymbol(symbolData as string);
@@ -159,14 +157,21 @@ export function UserPortfolioV2() {
 
       // Set portfolio basic data - convert bigint tradeCount to number
       // Use calculated unrealized PnL from contract instead of stored value
+
+      // Fetch portfolio from contract directly
+      const portfolioContractData = (await publicClient.readContract({
+        address: V2contractAddress,
+        abi: V2contractAbi,
+        functionName: "userPortfolios",
+        args: [accountAddress],
+      })) as [bigint, bigint, bigint, bigint, bigint];
+
       const portfolioInfo: UserPortfolio = {
-        totalInvested: portfolioData.totalInvested,
-        totalWinnings: portfolioData.totalWinnings,
-        unrealizedPnL: calculatedUnrealizedPnL
-          ? (calculatedUnrealizedPnL as bigint).toString()
-          : portfolioData.unrealizedPnL,
-        realizedPnL: portfolioData.realizedPnL,
-        tradeCount: Number(portfolioData.tradeCount), // Convert bigint to number
+        totalInvested: portfolioContractData[0].toString(),
+        totalWinnings: portfolioContractData[1].toString(),
+        unrealizedPnL: portfolioContractData[2].toString(),
+        realizedPnL: portfolioContractData[3].toString(),
+        tradeCount: Number(portfolioContractData[4]),
       };
       setPortfolio(portfolioInfo);
 
@@ -174,30 +179,18 @@ export function UserPortfolioV2() {
       const marketCount = (await (publicClient.readContract as any)({
         address: V2contractAddress,
         abi: V2contractAbi,
-        functionName: "getMarketCount" as any,
+        functionName: "marketCount" as any,
       })) as unknown as bigint;
 
       // Fetch user positions across all markets
       const positions: MarketPosition[] = [];
       for (let marketId = 0; marketId < Number(marketCount); marketId++) {
         try {
-          // Get user shares in this market
-          const userShares = (await (publicClient.readContract as any)({
-            address: V2contractAddress,
-            abi: V2contractAbi,
-            functionName: "getUserShares" as any,
-            args: [BigInt(marketId), accountAddress],
-          })) as unknown as bigint[];
-
-          // Skip if user has no shares in this market
-          if (!userShares || userShares.every((share) => share === 0n))
-            continue;
-
-          // Get market info
+          // Get market info first to know option count
           const marketInfo = (await (publicClient.readContract as any)({
             address: V2contractAddress,
             abi: V2contractAbi,
-            functionName: "getMarketInfo" as any,
+            functionName: "getMarketBasicInfo" as any,
             args: [BigInt(marketId)],
           })) as unknown as [
               string,
@@ -206,33 +199,60 @@ export function UserPortfolioV2() {
               number,
               bigint,
               boolean,
-              boolean,
               number,
               boolean,
-              bigint,
-              string,
-              boolean
+              bigint
             ];
+
+          const optionCount = Number(marketInfo[4]);
+
+          // Get user shares for each option
+          const userSharesPromises = [];
+          for (let optId = 0; optId < optionCount; optId++) {
+            userSharesPromises.push(
+              publicClient.readContract({
+                address: V2contractAddress,
+                abi: V2contractAbi,
+                functionName: "getMarketOptionUserShares",
+                args: [BigInt(marketId), BigInt(optId), accountAddress],
+              })
+            );
+          }
+
+          const userShares = (await Promise.all(userSharesPromises)) as bigint[];
+
+          // Skip if user has no shares in this market
+          if (!userShares || userShares.every((share) => share === 0n))
+            continue;
 
           const [
             question,
             ,
             ,
             ,
-            optionCount,
+            ,
             resolved,
             ,
-            ,
             invalidated,
-            winningOptionId,
-            creator,
           ] = marketInfo;
+
+          // Get extended meta for winning option
+          let winningOptionId = undefined;
+          if (resolved) {
+            const meta = await publicClient.readContract({
+              address: V2contractAddress,
+              abi: V2contractAbi,
+              functionName: "getMarketExtendedMeta",
+              args: [BigInt(marketId)],
+            }) as [bigint, boolean, boolean, string, boolean];
+            winningOptionId = Number(meta[0]);
+          }
 
           // Get option names and current prices
           const options: string[] = [];
           const currentPrices: bigint[] = [];
 
-          for (let optionId = 0; optionId < Number(optionCount); optionId++) {
+          for (let optionId = 0; optionId < optionCount; optionId++) {
             // Get option info
             const optionInfo = (await (publicClient.readContract as any)({
               address: V2contractAddress,
@@ -246,9 +266,16 @@ export function UserPortfolioV2() {
           }
 
           // Calculate total position value
+          // Note: currentPrice is probability (0-1e18). Need to convert to token price if needed.
+          // Assuming currentPrice here is what we want for value calc (implied probability * 100 * shares?)
+          // Or if it's already scaled.
+          // Based on previous code: totalValue += (userShares[i] * currentPrices[i]) / 10n ** 18n;
+          // If currentPrice is 0.5e18 (50%), and shares is 10e18. Value should be 5 tokens.
+          // (10e18 * 0.5e18) / 1e18 = 5e18. Correct.
+
           let totalValue = 0n;
           for (let i = 0; i < userShares.length; i++) {
-            totalValue += (userShares[i] * currentPrices[i]) / 10n ** 18n; // Normalize price
+            totalValue += (userShares[i] * currentPrices[i]) / 10n ** 18n;
           }
 
           positions.push({
@@ -261,7 +288,7 @@ export function UserPortfolioV2() {
             invested: 0n, // Will calculate from trades
             pnl: 0n, // Will calculate from trades
             resolved,
-            winningOption: resolved ? Number(winningOptionId) : undefined,
+            winningOption: winningOptionId,
           });
         } catch (error) {
           console.error(
@@ -559,8 +586,8 @@ export function UserPortfolioV2() {
               </p>
               <p
                 className={`text-2xl font-bold ${totalPnLFormatted.isPositive
-                    ? "text-green-600"
-                    : "text-red-600"
+                  ? "text-green-600"
+                  : "text-red-600"
                   }`}
               >
                 {totalPnLFormatted.isPositive ? "+" : "-"}
@@ -585,8 +612,8 @@ export function UserPortfolioV2() {
               <div className="flex items-center gap-2">
                 <p
                   className={`text-lg font-semibold ${Number(portfolio.realizedPnL) >= 0
-                      ? "text-green-600"
-                      : "text-red-600"
+                    ? "text-green-600"
+                    : "text-red-600"
                     }`}
                 >
                   {Number(portfolio.realizedPnL) >= 0 ? "+" : ""}
@@ -601,8 +628,8 @@ export function UserPortfolioV2() {
               <div className="flex items-center gap-2">
                 <p
                   className={`text-lg font-semibold ${Number(portfolio.unrealizedPnL) >= 0
-                      ? "text-green-600"
-                      : "text-red-600"
+                    ? "text-green-600"
+                    : "text-red-600"
                     }`}
                 >
                   {Number(portfolio.unrealizedPnL) >= 0 ? "+" : ""}

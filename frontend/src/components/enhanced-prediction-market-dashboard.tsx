@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Footer } from "./footer";
 import { useEffect, useState } from "react";
-import { sdk } from "@farcaster/miniapp-sdk";
+
 import { UserStats } from "./UserStats";
 import { useRouter, usePathname } from "next/navigation";
 import { Navbar } from "./navbar";
@@ -17,7 +17,7 @@ import { Wallet } from "lucide-react";
 import Link from "next/link";
 
 import { VoteHistory } from "./VoteHistory";
-import { useFarcasterUser } from "@/hooks/useFarcasterUser";
+
 
 import { ModernAdminDashboard } from "./ModernAdminDashboard";
 import LeaderboardComponent from "./LeaderboardComponent";
@@ -26,7 +26,6 @@ export function EnhancedPredictionMarketDashboard() {
   const { address, isConnected } = useAccount();
   const router = useRouter();
   const currentPathname = usePathname();
-  const farcasterUser = useFarcasterUser();
   const { hasCreatorAccess, hasResolverAccess, isAdmin } = useUserRoles();
 
   // Initialize with a fixed default. Will be updated from URL after client mount.
@@ -66,10 +65,7 @@ export function EnhancedPredictionMarketDashboard() {
   };
 
   useEffect(() => {
-    sdk.actions.ready();
-    (async () => {
-      await sdk.actions.addFrame();
-    })();
+    // Initialization logic if needed
   }, []);
 
   const emptyState = (title: string, subtitle: string) => (
@@ -107,9 +103,8 @@ export function EnhancedPredictionMarketDashboard() {
           className="w-full"
         >
           <TabsList
-            className={`grid w-full ${
-              actualShowVoteHistory ? "grid-cols-5" : "grid-cols-4"
-            } overflow-x-auto whitespace-nowrap hidden md:grid bg-[#433952]/50 border border-[#544863]`}
+            className={`grid w-full ${actualShowVoteHistory ? "grid-cols-5" : "grid-cols-4"
+              } overflow-x-auto whitespace-nowrap hidden md:grid bg-[#433952]/50 border border-[#544863]`}
           >
             <TabsTrigger
               value="active"

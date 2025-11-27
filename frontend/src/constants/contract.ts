@@ -1,17 +1,16 @@
-import { getContract } from "viem";
-import { createPublicClient, http } from "viem";
-import { base } from "wagmi/chains";
+import { getContract, createPublicClient, http } from "viem";
+import { celoAlfajores } from "wagmi/chains";
 
 export const publicClient = createPublicClient({
-  chain: base,
+  chain: celoAlfajores,
   transport: http(process.env.NEXT_PUBLIC_ALCHEMY_RPC_URL),
 });
 
-export const contractAddress = "0xd24261cD87Ac11A8961a2d5df7036ad87ca7F02A";
-export const tokenAddress = "0x53Bd7F868764333de01643ca9102ee4297eFA3cb";
-export const V2contractAddress = "0x5A10EF3049240b005717dCa2cf970e2cB371b596";
-export const PolicastViews = "0x23a3593cAE50c8beC5a6009EAB9131BADf84C8fe";
-export const FreeClaimHandler = "0x357bAa77f0D54e06d0be46E35B0867AE01641569";
+export const contractAddress = "0x23a5318379cB743e031EB72672E3028FdAd21285";
+export const tokenAddress = "0xdE9e4C3ce781b4bA68120d6261cbad65ce0aB00b";
+export const V2contractAddress = "0x23a5318379cB743e031EB72672E3028FdAd21285";
+// export const PolicastViews = "0x23a3593cAE50c8beC5a6009EAB9131BADf84C8fe";
+// export const FreeClaimHandler = "0x357bAa77f0D54e06d0be46E35B0867AE01641569";
 
 // V1 Contract ABI for binary markets (legacy)
 export const contractAbi = [
@@ -3627,20 +3626,17 @@ export const V2contract = getContract({
   client: publicClient,
 });
 
-export const PoliticalViewContract = getContract({
-  address: PolicastViews,
-  abi: PolicastViewsAbi,
-  client: publicClient,
-});
-
 export const tokenContract = getContract({
   address: tokenAddress,
   abi: tokenAbi,
   client: publicClient,
 });
 
-export const freeClaimHandlerContract = getContract({
-  address: FreeClaimHandler,
-  abi: FreeClaimHandlerabi,
-  client: publicClient,
-});
+// Export dummy PolicastViews to satisfy imports in legacy components
+// This contract is NOT deployed on Celo Alfajores.
+// Components using this will fail at runtime if not refactored.
+export const PolicastViews = "0x0000000000000000000000000000000000000000";
+
+
+export const FreeClaimHandler = "0x0000000000000000000000000000000000000000";
+export const freeClaimHandlerAbi = [];

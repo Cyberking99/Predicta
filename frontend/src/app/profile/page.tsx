@@ -3,7 +3,7 @@
 import { UserStats } from "@/components/UserStats";
 import { VoteHistory } from "@/components/VoteHistory";
 import { useAccount } from "wagmi";
-import { useFarcasterUser } from "@/hooks/useFarcasterUser";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +20,6 @@ import { Footer } from "@/components/footer";
 
 export default function ProfilePage() {
   const { address, isConnected } = useAccount();
-  const farcasterUser = useFarcasterUser();
 
   return (
     <div className="min-h-screen flex flex-col pb-20 md:pb-0 bg-gradient-to-br from-[#6A5ACD] via-[#E6E6FA] to-[#F0F8FF] dark:from-[#2D1B69] dark:via-[#1a1a2e] dark:to-[#16213e]">

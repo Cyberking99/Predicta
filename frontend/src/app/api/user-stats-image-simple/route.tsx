@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const address = searchParams.get("address");
   const username = searchParams.get("username") || "Anonymous Trader";
-  const fid = searchParams.get("fid") || "239396";
+
 
   console.log(
     `Simple User Stats Image API: Received request for address: ${address}`
@@ -353,30 +353,7 @@ export async function GET(request: NextRequest) {
             </div>
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                fontSize: "18px",
-                fontWeight: "bold",
-                color: "#2563eb",
-                marginBottom: "4px",
-              }}
-            >
-              FID: {fid}
-            </div>
-            <div
-              style={{ display: "flex", fontSize: "14px", color: "#6b7280" }}
-            >
-              Farcaster ID
-            </div>
-          </div>
+
         </div>
       </div>
     );

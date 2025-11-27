@@ -153,6 +153,10 @@ export function CreateMarketV2() {
       enabled: isConnected && !!address,
     },
   });
+  console.log("isConnected", isConnected);
+  console.log("address", address);
+  console.log("hasCreatorAccess", hasCreatorAccess);
+  console.log("hasCreatorRole", hasCreatorRole);
 
   // Check if user is contract owner
   const { data: contractOwner } = useReadContract({
@@ -550,28 +554,28 @@ export function CreateMarketV2() {
           args:
             builtArgs2.length === 10
               ? (builtArgs2 as [
-                  string,
-                  string,
-                  string[],
-                  string[],
-                  bigint,
-                  number,
-                  number,
-                  bigint,
-                  boolean,
-                  { maxFreeParticipants: bigint; tokensPerParticipant: bigint }
-                ])
+                string,
+                string,
+                string[],
+                string[],
+                bigint,
+                number,
+                number,
+                bigint,
+                boolean,
+                { maxFreeParticipants: bigint; tokensPerParticipant: bigint }
+              ])
               : (builtArgs2 as [
-                  string,
-                  string,
-                  string[],
-                  string[],
-                  bigint,
-                  number,
-                  number,
-                  bigint,
-                  boolean
-                ]),
+                string,
+                string,
+                string[],
+                string[],
+                bigint,
+                number,
+                number,
+                bigint,
+                boolean
+              ]),
         }),
       };
 
@@ -591,9 +595,8 @@ export function CreateMarketV2() {
       console.error("❌ Fatal error creating market:", error);
       toast({
         title: "Error",
-        description: `Failed to create market: ${
-          error?.message || "Unknown error"
-        }`,
+        description: `Failed to create market: ${error?.message || "Unknown error"
+          }`,
         variant: "destructive",
       });
     } finally {
@@ -1093,10 +1096,10 @@ export function CreateMarketV2() {
                       const requiredAmount =
                         marketType === MarketType.FREE_ENTRY
                           ? (
-                              parseFloat(initialLiquidity || "0") +
-                              parseFloat(freeSharesPerUser || "0") *
-                                parseInt(maxFreeParticipants || "0")
-                            ).toString()
+                            parseFloat(initialLiquidity || "0") +
+                            parseFloat(freeSharesPerUser || "0") *
+                            parseInt(maxFreeParticipants || "0")
+                          ).toString()
                           : initialLiquidity;
                       return userBalance < parseEther(requiredAmount)
                         ? "text-red-300 font-medium"
@@ -1117,23 +1120,23 @@ export function CreateMarketV2() {
                   const requiredAmount =
                     marketType === MarketType.FREE_ENTRY
                       ? (
-                          parseFloat(initialLiquidity || "0") +
-                          parseFloat(freeSharesPerUser || "0") *
-                            parseInt(maxFreeParticipants || "0")
-                        ).toString()
+                        parseFloat(initialLiquidity || "0") +
+                        parseFloat(freeSharesPerUser || "0") *
+                        parseInt(maxFreeParticipants || "0")
+                      ).toString()
                       : initialLiquidity;
                   return userBalance < parseEther(requiredAmount);
                 } catch {
                   return false;
                 }
               })() && (
-                <div className="flex items-center gap-2 p-2 bg-red-900/30 border border-red-400/30 rounded mt-2">
-                  <AlertTriangle className="h-4 w-4 text-red-300" />
-                  <span className="text-red-200 text-xs">
-                    Insufficient balance to create this market
-                  </span>
-                </div>
-              )}
+                  <div className="flex items-center gap-2 p-2 bg-red-900/30 border border-red-400/30 rounded mt-2">
+                    <AlertTriangle className="h-4 w-4 text-red-300" />
+                    <span className="text-red-200 text-xs">
+                      Insufficient balance to create this market
+                    </span>
+                  </div>
+                )}
             </div>
           </div>
 
@@ -1206,11 +1209,11 @@ export function CreateMarketV2() {
                         }
                         const requiredApproval =
                           marketType === MarketType.FREE_ENTRY &&
-                          freeSharesPerUser.trim() &&
-                          maxFreeParticipants.trim()
+                            freeSharesPerUser.trim() &&
+                            maxFreeParticipants.trim()
                             ? parseEther(initialLiquidity) +
-                              parseEther(freeSharesPerUser) *
-                                BigInt(maxFreeParticipants)
+                            parseEther(freeSharesPerUser) *
+                            BigInt(maxFreeParticipants)
                             : parseEther(initialLiquidity);
                         return requiredApproval > currentAllowance
                           ? "Approve & Create Market"

@@ -25,7 +25,7 @@ import { MarketPending } from "./market-pending";
 import { InteractiveTradingInterface } from "./InteractiveTradingInterface";
 import { MarketV2SellInterface } from "./MarketV2SellInterface";
 import { MarketV2SharesDisplay } from "./market-v2-shares-display";
-import { sdk } from "@farcaster/miniapp-sdk";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faShareFromSquare,
@@ -190,8 +190,8 @@ export function MarketV2Card({ index, market }: MarketV2CardProps) {
         typeof raw === "string"
           ? raw
           : raw && typeof raw === "object"
-          ? String((raw as any).name ?? `Option ${i + 1}`)
-          : `Option ${i + 1}`;
+            ? String((raw as any).name ?? `Option ${i + 1}`)
+            : `Option ${i + 1}`;
       const description =
         raw && typeof raw === "object"
           ? String((raw as any).description ?? "")
@@ -636,14 +636,8 @@ export function MarketV2Card({ index, market }: MarketV2CardProps) {
   const marketPageUrl = `${appUrl}/market/${index}/details`;
 
   const handleShare = async () => {
-    try {
-      await sdk.actions.composeCast({
-        text: `Check out this market on Policast: ${market.question}`,
-        embeds: [marketPageUrl],
-      });
-    } catch (error) {
-      console.error("Failed to compose cast:", error);
-    }
+    // Placeholder for share logic
+    console.log("Share market", index);
   };
 
   // Check if user has shares
@@ -727,21 +721,19 @@ export function MarketV2Card({ index, market }: MarketV2CardProps) {
               <nav className="flex -mb-px">
                 <button
                   onClick={() => setActiveInterface("buy")}
-                  className={`inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                    activeInterface === "buy"
-                      ? "border-purple-500 text-purple-400"
-                      : "border-transparent text-gray-400 hover:border-[#544863] hover:text-gray-300"
-                  }`}
+                  className={`inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeInterface === "buy"
+                    ? "border-purple-500 text-purple-400"
+                    : "border-transparent text-gray-400 hover:border-[#544863] hover:text-gray-300"
+                    }`}
                 >
                   <TrendingUp className="h-3.5 w-3.5" /> Buy
                 </button>
                 <button
                   onClick={() => setActiveInterface("sell")}
-                  className={`inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                    activeInterface === "sell"
-                      ? "border-red-500 text-red-400"
-                      : "border-transparent text-gray-400 hover:border-[#544863] hover:text-gray-300"
-                  }`}
+                  className={`inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeInterface === "sell"
+                    ? "border-red-500 text-red-400"
+                    : "border-transparent text-gray-400 hover:border-[#544863] hover:text-gray-300"
+                    }`}
                 >
                   <TrendingDown className="h-3.5 w-3.5" /> Sell
                 </button>

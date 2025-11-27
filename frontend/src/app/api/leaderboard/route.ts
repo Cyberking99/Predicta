@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 // This data changes over time and depends on live chain + Neynar; avoid static optimization
 export const dynamic = "force-dynamic";
-import { NeynarAPIClient } from "@neynar/nodejs-sdk";
+
 import NodeCache from "node-cache";
 import {
   publicClient,
@@ -18,21 +18,9 @@ import { Address } from "viem";
 
 const cache = new NodeCache({ stdTTL: 3600, checkperiod: 120 }); // 1-hour TTL
 const CACHE_KEY_PREFIX = "leaderboard_v12_"; // Updated version - Pure winnings leaderboard
-const NEYNAR_CACHE_KEY = "neynar_users_v12";
+
 const PAGE_SIZE = 100; // Users per V1 contract call
 const V2_BATCH_SIZE = 50; // Addresses per V2 multicall batch
-
-interface NeynarRawUser {
-  username: string;
-  fid: number;
-  pfp_url?: string;
-}
-
-interface NeynarUser {
-  username: string;
-  fid: string;
-  pfp_url: string | null;
-}
 
 interface LeaderboardEntry {
   rank: number;
@@ -67,38 +55,6 @@ async function withRetry<T>(
     }
   }
   throw new Error("Max retries reached");
-}
-
-async function batchFetchNeynarUsers(
-  neynar: NeynarAPIClient,
-  addresses: string[],
-  batchSize = 25
-): Promise<Record<string, NeynarUser[]>> {
-  const result: Record<string, NeynarUser[]> = {};
-  for (let i = 0; i < addresses.length; i += batchSize) {
-    const batch = addresses.slice(i, i + batchSize);
-    try {
-      const usersMap = await withRetry(() =>
-        neynar.fetchBulkUsersByEthOrSolAddress({
-          addresses: batch,
-          addressTypes: ["custody_address", "verified_address"],
-        })
-      );
-      for (const [address, users] of Object.entries(usersMap)) {
-        result[address.toLowerCase()] = users.map((user: NeynarRawUser) => ({
-          username: user.username,
-          fid: user.fid.toString(),
-          pfp_url: user.pfp_url || null,
-        }));
-      }
-    } catch (error) {
-      console.error(
-        `Failed to fetch Neynar batch ${i / batchSize + 1}:`,
-        error
-      );
-    }
-  }
-  return result;
 }
 
 function getCacheKey(type: LeaderboardType, timeframe: TimeFrame) {
@@ -148,32 +104,7 @@ export async function GET(request: Request) {
       }
     }
 
-    // Only fetch Neynar data for current page
-    const addressesToFetch = paginatedData
-      .filter((entry) => !entry.fid || entry.fid === "nil")
-      .map((entry) => entry.address);
-
-    if (addressesToFetch.length > 0) {
-      const neynarApiKey = process.env.NEYNAR_API_KEY;
-      if (neynarApiKey) {
-        const neynar = new NeynarAPIClient({ apiKey: neynarApiKey });
-        const newUsersMap = await batchFetchNeynarUsers(
-          neynar,
-          addressesToFetch
-        );
-
-        // Update entries with Neynar data
-        paginatedData.forEach((entry) => {
-          const usersForAddress = newUsersMap[entry.address];
-          if (usersForAddress && usersForAddress.length > 0) {
-            const user = usersForAddress[0];
-            entry.username = user.username;
-            entry.fid = user.fid;
-            entry.pfp_url = user.pfp_url;
-          }
-        });
-      }
-    }
+    // Neynar integration removed
 
     return NextResponse.json({
       data: paginatedData,
@@ -196,16 +127,8 @@ export async function GET(request: Request) {
     console.log("🚀 Starting leaderboard fetch...");
 
     // Check for required environment variables
-    const neynarApiKey = process.env.NEYNAR_API_KEY;
-    const alchemyRpcUrl = process.env.NEXT_PUBLIC_ALCHEMY_RPC_URL;
 
-    if (!neynarApiKey) {
-      console.error("❌ NEYNAR_API_KEY is not set");
-      return NextResponse.json(
-        { error: "Server configuration error: Missing NEYNAR_API_KEY" },
-        { status: 500 }
-      );
-    }
+    const alchemyRpcUrl = process.env.NEXT_PUBLIC_ALCHEMY_RPC_URL;
 
     if (!alchemyRpcUrl) {
       console.error("❌ NEXT_PUBLIC_ALCHEMY_RPC_URL is not set");
@@ -214,9 +137,6 @@ export async function GET(request: Request) {
         { status: 500 }
       );
     }
-
-    const neynar = new NeynarAPIClient({ apiKey: neynarApiKey });
-    console.log("✅ Neynar client initialized.");
 
     const [tokenDecimals] = await withRetry(() =>
       publicClient.multicall({
@@ -454,28 +374,8 @@ export async function GET(request: Request) {
 
     console.log(`📊 Combined ${winners.length} total unique winners`);
 
-    // ==================== FETCH NEYNAR DATA ====================
-    console.log("📬 Fetching Farcaster users...");
-    const neynarCache =
-      cache.get<Record<string, NeynarUser[]>>(NEYNAR_CACHE_KEY) || {};
-    const addressesToFetch = winners
-      .map((w) => w.address)
-      .filter((addr) => !neynarCache[addr]);
-    let addressToUsersMap: Record<string, NeynarUser[]> = { ...neynarCache };
-
-    if (addressesToFetch.length > 0) {
-      console.log(
-        `📬 Requesting Neynar for ${addressesToFetch.length} addresses`
-      );
-      const newUsersMap = await batchFetchNeynarUsers(neynar, addressesToFetch);
-      addressToUsersMap = { ...addressToUsersMap, ...newUsersMap };
-      cache.set(NEYNAR_CACHE_KEY, addressToUsersMap, 86400); // 1-day TTL
-      console.log(
-        `✅ Neynar responded. Found users for ${
-          Object.keys(newUsersMap).length
-        } addresses.`
-      );
-    }
+    // Neynar integration removed
+    const addressToUsersMap: Record<string, any> = {}; // Initialize as empty since Neynar integration is removed
 
     // ==================== BUILD FINAL LEADERBOARD ====================
     console.log("🧠 Building leaderboard...");

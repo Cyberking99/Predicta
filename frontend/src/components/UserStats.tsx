@@ -19,9 +19,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useFarcasterUser } from "@/hooks/useFarcasterUser";
-import { Share2, TrendingUp, TrendingDown } from "lucide-react";
-import { sdk } from "@farcaster/miniapp-sdk";
+
+import { TrendingUp, TrendingDown } from "lucide-react";
+
 import { ClaimWinningsSection } from "@/components/ClaimWinningsButton";
 
 interface Vote {
@@ -72,7 +72,7 @@ const CACHE_TTL_STATS = 60 * 60;
 export function UserStats() {
   const { address: accountAddress, isConnected } = useAccount();
   const { toast } = useToast();
-  const farcasterUser = useFarcasterUser();
+
   const [stats, setStats] = useState<UserStatsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [tokenSymbol, setTokenSymbol] = useState<string>("buster");
@@ -154,18 +154,18 @@ export function UserStats() {
                 v2TradeCount: data.stats.v2TradeCount || 0,
                 v2Portfolio: data.stats.v2Portfolio
                   ? {
-                      ...data.stats.v2Portfolio,
-                      totalInvested: BigInt(
-                        data.stats.v2Portfolio.totalInvested
-                      ),
-                      totalWinnings: BigInt(
-                        data.stats.v2Portfolio.totalWinnings
-                      ),
-                      unrealizedPnL: BigInt(
-                        data.stats.v2Portfolio.unrealizedPnL
-                      ),
-                      realizedPnL: BigInt(data.stats.v2Portfolio.realizedPnL),
-                    }
+                    ...data.stats.v2Portfolio,
+                    totalInvested: BigInt(
+                      data.stats.v2Portfolio.totalInvested
+                    ),
+                    totalWinnings: BigInt(
+                      data.stats.v2Portfolio.totalWinnings
+                    ),
+                    unrealizedPnL: BigInt(
+                      data.stats.v2Portfolio.unrealizedPnL
+                    ),
+                    realizedPnL: BigInt(data.stats.v2Portfolio.realizedPnL),
+                  }
                   : undefined,
               };
               setStats(cachedStats);
@@ -209,13 +209,13 @@ export function UserStats() {
             v2TradeCount: 0,
             v2Portfolio: v2PortfolioTuple
               ? {
-                  totalInvested: v2PortfolioTuple[0],
-                  totalWinnings: v2PortfolioTuple[1],
-                  unrealizedPnL:
-                    (calculatedUnrealizedPnL as bigint | undefined) ?? 0n,
-                  realizedPnL: v2PortfolioTuple[3],
-                  tradeCount: Number(v2PortfolioTuple[4]),
-                }
+                totalInvested: v2PortfolioTuple[0],
+                totalWinnings: v2PortfolioTuple[1],
+                unrealizedPnL:
+                  (calculatedUnrealizedPnL as bigint | undefined) ?? 0n,
+                realizedPnL: v2PortfolioTuple[3],
+                tradeCount: Number(v2PortfolioTuple[4]),
+              }
               : undefined,
           });
           setIsLoading(false);
@@ -452,13 +452,13 @@ export function UserStats() {
           v2TradeCount: v2Trades.length,
           v2Portfolio: v2PortfolioTuple
             ? {
-                totalInvested: v2PortfolioTuple[0],
-                totalWinnings: v2PortfolioTuple[1],
-                unrealizedPnL:
-                  (calculatedUnrealizedPnL as bigint | undefined) ?? 0n,
-                realizedPnL: v2PortfolioTuple[3],
-                tradeCount: Number(v2PortfolioTuple[4]),
-              }
+              totalInvested: v2PortfolioTuple[0],
+              totalWinnings: v2PortfolioTuple[1],
+              unrealizedPnL:
+                (calculatedUnrealizedPnL as bigint | undefined) ?? 0n,
+              realizedPnL: v2PortfolioTuple[3],
+              tradeCount: Number(v2PortfolioTuple[4]),
+            }
             : undefined,
         };
         setStats(newStats);
@@ -469,12 +469,12 @@ export function UserStats() {
           netWinnings: newStats.netWinnings.toString(),
           v2Portfolio: newStats.v2Portfolio
             ? {
-                ...newStats.v2Portfolio,
-                totalInvested: newStats.v2Portfolio.totalInvested.toString(),
-                totalWinnings: newStats.v2Portfolio.totalWinnings.toString(),
-                unrealizedPnL: newStats.v2Portfolio.unrealizedPnL.toString(),
-                realizedPnL: newStats.v2Portfolio.realizedPnL.toString(),
-              }
+              ...newStats.v2Portfolio,
+              totalInvested: newStats.v2Portfolio.totalInvested.toString(),
+              totalWinnings: newStats.v2Portfolio.totalWinnings.toString(),
+              unrealizedPnL: newStats.v2Portfolio.unrealizedPnL.toString(),
+              realizedPnL: newStats.v2Portfolio.realizedPnL.toString(),
+            }
             : undefined,
         };
 
@@ -543,31 +543,7 @@ export function UserStats() {
     });
   };
 
-  const handleShare = async () => {
-    const baseUrl = window.location.origin;
-    const params = new URLSearchParams({
-      address: accountAddress!,
-      ...(farcasterUser?.username && { username: farcasterUser.username }),
-      ...(farcasterUser?.pfpUrl && { pfpUrl: farcasterUser.pfpUrl }),
-      ...(farcasterUser?.fid && { fid: farcasterUser.fid.toString() }),
-    });
 
-    const shareUrl = `${baseUrl}/profile/${accountAddress}?${params.toString()}`;
-
-    try {
-      await sdk.actions.composeCast({
-        text: `Check out my prediction market stats on Policast! 🎯`,
-        embeds: [shareUrl],
-      });
-    } catch (error) {
-      console.error("Failed to compose cast:", error);
-      toast({
-        title: "Share Failed",
-        description: "Could not share your stats. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
 
   return (
     <div className="space-y-3">
@@ -577,39 +553,22 @@ export function UserStats() {
         <div className="flex items-center gap-3">
           <div className="w-20 h-20 rounded-full ring-4 ring-white/30 bg-gradient-to-br from-[#433952] to-[#544863] p-1 shadow-lg">
             <Avatar className="w-full h-full">
-              <AvatarImage src={farcasterUser?.pfpUrl} alt="Profile" />
               <AvatarFallback className="bg-gradient-to-br from-[#433952] to-[#544863] text-white font-bold text-xl">
-                {farcasterUser?.username
-                  ? farcasterUser.username.charAt(0).toUpperCase()
-                  : accountAddress
+                {accountAddress
                   ? `${accountAddress.slice(0, 2)}${accountAddress.slice(-2)}`
                   : "?"}
               </AvatarFallback>
             </Avatar>
           </div>
-
-          {/* Share Button Beside Circle */}
-          <Button
-            onClick={handleShare}
-            size="sm"
-            className="h-10 w-10 p-0 rounded-full bg-gradient-to-br from-[#433952] to-[#544863] hover:from-[#544863] hover:to-[#433952] text-white border-0 shadow-lg ring-2 ring-white/30"
-          >
-            <Share2 className="w-4 h-4" />
-          </Button>
         </div>
 
         {/* User Info */}
         <div className="text-center">
           <h2 className="text-base font-bold text-white">
-            {farcasterUser?.username
-              ? `@${farcasterUser.username}`
-              : "Anonymous Trader"}
-          </h2>
-          <p className="text-xs text-white/70 font-mono">
             {accountAddress
               ? `${accountAddress.slice(0, 6)}...${accountAddress.slice(-4)}`
               : "Not connected"}
-          </p>
+          </h2>
         </div>
       </div>
 
@@ -642,9 +601,9 @@ export function UserStats() {
                   <span className="font-bold text-white">
                     {stats.v1Markets > 0
                       ? (
-                          (stats.v1Wins / (stats.v1Wins + stats.v1Losses)) *
-                          100
-                        ).toFixed(1)
+                        (stats.v1Wins / (stats.v1Wins + stats.v1Losses)) *
+                        100
+                      ).toFixed(1)
                       : 0}
                     %
                   </span>
@@ -682,9 +641,9 @@ export function UserStats() {
                   <span className="font-bold text-white">
                     {stats.v2Markets > 0
                       ? (
-                          (stats.v2Wins / (stats.v2Wins + stats.v2Losses)) *
-                          100
-                        ).toFixed(1)
+                        (stats.v2Wins / (stats.v2Wins + stats.v2Losses)) *
+                        100
+                      ).toFixed(1)
                       : 0}
                     %
                   </span>
@@ -756,11 +715,10 @@ export function UserStats() {
 
             <div className="grid grid-cols-2 gap-2">
               <div
-                className={`p-3 rounded-lg ${
-                  Number(stats.v2Portfolio.realizedPnL) >= 0
-                    ? "bg-emerald-50"
-                    : "bg-red-50"
-                }`}
+                className={`p-3 rounded-lg ${Number(stats.v2Portfolio.realizedPnL) >= 0
+                  ? "bg-emerald-50"
+                  : "bg-red-50"
+                  }`}
               >
                 <div className="flex items-center gap-1 mb-0.5">
                   {Number(stats.v2Portfolio.realizedPnL) >= 0 ? (
@@ -769,32 +727,29 @@ export function UserStats() {
                     <TrendingDown className="w-3 h-3 text-red-600" />
                   )}
                   <p
-                    className={`text-xs font-medium ${
-                      Number(stats.v2Portfolio.realizedPnL) >= 0
-                        ? "text-emerald-600"
-                        : "text-red-600"
-                    }`}
+                    className={`text-xs font-medium ${Number(stats.v2Portfolio.realizedPnL) >= 0
+                      ? "text-emerald-600"
+                      : "text-red-600"
+                      }`}
                   >
                     Realized P&L
                   </p>
                 </div>
                 <p
-                  className={`text-sm font-bold ${
-                    Number(stats.v2Portfolio.realizedPnL) >= 0
-                      ? "text-emerald-700"
-                      : "text-red-700"
-                  } truncate`}
+                  className={`text-sm font-bold ${Number(stats.v2Portfolio.realizedPnL) >= 0
+                    ? "text-emerald-700"
+                    : "text-red-700"
+                    } truncate`}
                 >
                   {formatSignedAmount(stats.v2Portfolio.realizedPnL)}
                 </p>
                 <p className="text-xs text-gray-500">{tokenSymbol}</p>
               </div>
               <div
-                className={`p-3 rounded-lg ${
-                  Number(stats.v2Portfolio.unrealizedPnL) >= 0
-                    ? "bg-emerald-50"
-                    : "bg-red-50"
-                }`}
+                className={`p-3 rounded-lg ${Number(stats.v2Portfolio.unrealizedPnL) >= 0
+                  ? "bg-emerald-50"
+                  : "bg-red-50"
+                  }`}
               >
                 <div className="flex items-center gap-1 mb-0.5">
                   {Number(stats.v2Portfolio.unrealizedPnL) >= 0 ? (
@@ -803,21 +758,19 @@ export function UserStats() {
                     <TrendingDown className="w-3 h-3 text-red-600" />
                   )}
                   <p
-                    className={`text-xs font-medium ${
-                      Number(stats.v2Portfolio.unrealizedPnL) >= 0
-                        ? "text-emerald-600"
-                        : "text-red-600"
-                    }`}
+                    className={`text-xs font-medium ${Number(stats.v2Portfolio.unrealizedPnL) >= 0
+                      ? "text-emerald-600"
+                      : "text-red-600"
+                      }`}
                   >
                     Unrealized P&L
                   </p>
                 </div>
                 <p
-                  className={`text-sm font-bold ${
-                    Number(stats.v2Portfolio.unrealizedPnL) >= 0
-                      ? "text-emerald-700"
-                      : "text-red-700"
-                  } truncate`}
+                  className={`text-sm font-bold ${Number(stats.v2Portfolio.unrealizedPnL) >= 0
+                    ? "text-emerald-700"
+                    : "text-red-700"
+                    } truncate`}
                 >
                   {formatSignedAmount(stats.v2Portfolio.unrealizedPnL)}
                 </p>
@@ -848,9 +801,8 @@ function StatCard({
 }) {
   return (
     <div
-      className={`p-3 rounded-lg border border-gray-100 ${bgColor} ${
-        fullWidth ? "col-span-2" : ""
-      }`}
+      className={`p-3 rounded-lg border border-gray-100 ${bgColor} ${fullWidth ? "col-span-2" : ""
+        }`}
     >
       <div className="flex items-center gap-2">
         <span className="text-xl">{icon}</span>

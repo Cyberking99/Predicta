@@ -42,7 +42,7 @@ interface UserStatsData {
   netWinnings: bigint;
   username?: string;
   pfpUrl?: string;
-  fid?: number;
+
   // V1/V2 breakdown
   v1Markets: number;
   v2Markets: number;
@@ -118,12 +118,12 @@ async function fetchUserStats(address: Address): Promise<UserStatsData> {
         v2Markets: 0,
         v2Portfolio: v2PortfolioTuple
           ? {
-              totalInvested: v2PortfolioTuple[0],
-              totalWinnings: v2PortfolioTuple[1],
-              unrealizedPnL: v2PortfolioTuple[2],
-              realizedPnL: v2PortfolioTuple[3],
-              tradeCount: Number(v2PortfolioTuple[4]),
-            }
+            totalInvested: v2PortfolioTuple[0],
+            totalWinnings: v2PortfolioTuple[1],
+            unrealizedPnL: v2PortfolioTuple[2],
+            realizedPnL: v2PortfolioTuple[3],
+            tradeCount: Number(v2PortfolioTuple[4]),
+          }
           : undefined,
       };
     }
@@ -225,12 +225,12 @@ async function fetchUserStats(address: Address): Promise<UserStatsData> {
       v2Markets,
       v2Portfolio: v2PortfolioTuple
         ? {
-            totalInvested: v2PortfolioTuple[0],
-            totalWinnings: v2PortfolioTuple[1],
-            unrealizedPnL: v2PortfolioTuple[2],
-            realizedPnL: v2PortfolioTuple[3],
-            tradeCount: Number(v2PortfolioTuple[4]),
-          }
+          totalInvested: v2PortfolioTuple[0],
+          totalWinnings: v2PortfolioTuple[1],
+          unrealizedPnL: v2PortfolioTuple[2],
+          realizedPnL: v2PortfolioTuple[3],
+          tradeCount: Number(v2PortfolioTuple[4]),
+        }
         : undefined,
     };
   } catch (error) {
@@ -282,7 +282,7 @@ export async function GET(request: NextRequest) {
   const address = searchParams.get("address");
   const username = searchParams.get("username");
   const pfpUrl = searchParams.get("pfpUrl");
-  const fid = searchParams.get("fid");
+
 
   console.log(`User Stats Image API: Received request for address: ${address}`);
 
@@ -388,8 +388,8 @@ export async function GET(request: NextRequest) {
             {stats.v1Markets > 0 && stats.v2Markets > 0
               ? "(V1 + V2)"
               : stats.v2Markets > 0
-              ? "(V2)"
-              : "(V1)"}
+                ? "(V2)"
+                : "(V1)"}
           </div>
         </div>
 
@@ -571,9 +571,8 @@ export async function GET(request: NextRequest) {
                   Number(stats.netWinnings) >= 0 ? "#dcfce7" : "#fecaca",
                 borderRadius: "16px",
                 padding: "16px",
-                border: `2px solid ${
-                  Number(stats.netWinnings) >= 0 ? "#bbf7d0" : "#fca5a5"
-                }`,
+                border: `2px solid ${Number(stats.netWinnings) >= 0 ? "#bbf7d0" : "#fca5a5"
+                  }`,
               }}
             >
               <span style={{ fontSize: "32px" }}>
@@ -676,10 +675,10 @@ export async function GET(request: NextRequest) {
             >
               {stats.totalVotes > 0
                 ? (
-                    Number(stats.totalInvested) /
-                    stats.totalVotes /
-                    10 ** 18
-                  ).toFixed(0)
+                  Number(stats.totalInvested) /
+                  stats.totalVotes /
+                  10 ** 18
+                ).toFixed(0)
                 : 0}
             </div>
             <div
@@ -693,43 +692,7 @@ export async function GET(request: NextRequest) {
             </div>
           </div>
 
-          {/* Farcaster ID */}
-          {fid && (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "16px",
-                backgroundColor: "rgba(37, 99, 235, 0.05)",
-                borderRadius: "12px",
-                border: `1px solid ${colors.border}`,
-                flex: "1",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  fontSize: "24px",
-                  fontWeight: "bold",
-                  color: colors.primary,
-                  marginBottom: "4px",
-                }}
-              >
-                FID: {fid}
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  fontSize: "14px",
-                  color: colors.text.secondary,
-                }}
-              >
-                Farcaster ID
-              </div>
-            </div>
-          )}
+
         </div>
       </div>
     );

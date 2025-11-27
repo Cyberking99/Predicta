@@ -12,23 +12,7 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "*.imagedelivery.net",
       },
-      // Farcaster profile picture domains
-      {
-        protocol: "https",
-        hostname: "i.imgur.com",
-      },
-      {
-        protocol: "https",
-        hostname: "images.farcaster.xyz",
-      },
-      {
-        protocol: "https",
-        hostname: "farcaster.xyz",
-      },
-      {
-        protocol: "https",
-        hostname: "farcaster.com",
-      },
+
       {
         protocol: "https",
         hostname: "imgur.com",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, Fragment } from "react";
-import { sdk } from "@farcaster/miniapp-sdk";
+
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -17,6 +17,7 @@ import {
   X,
   Settings,
   Gift,
+  Plus,
 } from "lucide-react";
 import { useUserRoles } from "@/hooks/useUserRoles";
 
@@ -32,6 +33,7 @@ export function Navbar() {
 
   const navigationItems = [
     { name: "Markets", href: "/", icon: Home },
+    { name: "Create", href: "/create-market", icon: Plus },
     { name: "Profile", href: "/profile", icon: User },
   ];
 
@@ -43,31 +45,13 @@ export function Navbar() {
   ];
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const context = await sdk.context;
-        setUsername(context.user.username || "player");
-        setPfpUrl(context.user.pfpUrl || null);
-      } catch {
-        setUsername("player");
-        setPfpUrl(null);
-      }
-    };
-    fetchUser();
+    // Placeholder for user fetch
+    setUsername("player");
+    setPfpUrl(null);
   }, []);
 
   useEffect(() => {
-    const autoConnectInMiniApp = async () => {
-      try {
-        const inMiniApp = await sdk.isInMiniApp();
-        if (inMiniApp && !wallet.isConnected) {
-          wallet.connect("miniAppConnector");
-        }
-      } catch (error) {
-        console.error("Error during auto-connect:", error);
-      }
-    };
-    autoConnectInMiniApp();
+    // Auto-connect logic removed
   }, [wallet.isConnected, wallet.connect]);
 
   const WalletButton = () => {
@@ -88,8 +72,7 @@ export function Navbar() {
 
     const getConnectorName = (connectorId: string) => {
       switch (connectorId) {
-        case "miniAppConnector":
-          return "Farcaster";
+
         case "coinbaseWalletSDK":
           return "Coinbase Wallet";
         case "metaMask":
@@ -101,9 +84,7 @@ export function Navbar() {
       }
     };
 
-    const availableConnectors = wallet.connectors.filter(
-      (c) => c.id !== "miniAppConnector"
-    );
+    const availableConnectors = wallet.connectors;
 
     if (wallet.isConnected && wallet.address) {
       return (
@@ -210,11 +191,10 @@ export function Navbar() {
               return (
                 <Link key={item.name} href={item.href}>
                   <button
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                      isActive
-                        ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md"
-                        : "text-gray-300 hover:bg-[#352c3f]/80"
-                    }`}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${isActive
+                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md"
+                      : "text-gray-300 hover:bg-[#352c3f]/80"
+                      }`}
                   >
                     <Icon className="h-4 w-4" />
                     {item.name}
@@ -283,11 +263,10 @@ export function Navbar() {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <button
-                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                        isActive
-                          ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md"
-                          : "text-gray-300 hover:bg-[#352c3f]/80"
-                      }`}
+                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${isActive
+                        ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md"
+                        : "text-gray-300 hover:bg-[#352c3f]/80"
+                        }`}
                     >
                       <Icon className="h-4 w-4" />
                       {item.name}

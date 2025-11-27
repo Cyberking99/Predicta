@@ -146,10 +146,7 @@ export function MarketV2BuyInterface({
   // Convert contract odds to array of bigints
   const odds = (marketOdds as readonly bigint[]) || [];
 
-  // Check if we're using Farcaster connector
-  const isFarcasterConnector =
-    connector?.id === "miniAppConnector" ||
-    connector?.name?.includes("Farcaster");
+
 
   // Check if wallet supports batch transactions (EIP-5792)
   // MetaMask now supports EIP-5792, only exclude wallets with known issues
@@ -691,7 +688,7 @@ export function MarketV2BuyInterface({
       console.log("Selected option ID:", selectedOptionId);
       console.log("Balance before batch:", userBalance?.toString());
       console.log("Current allowance:", userAllowance?.toString());
-      console.log("Is Farcaster connector:", isFarcasterConnector);
+
       console.log("Current price:", currentPrice.toString());
       console.log("Estimated cost:", estimatedCost?.toString());
       console.log("Avg price per share:", avgPricePerShare.toString());
@@ -931,8 +928,8 @@ export function MarketV2BuyInterface({
         callsData && typeof callsData === "object" && "id" in callsData
           ? `status-${String(callsData.id)}-${callsStatusData.status}`
           : `status-${callsStatusData.status}-${JSON.stringify(
-              callsStatusData.receipts
-            )}`;
+            callsStatusData.receipts
+          )}`;
 
       if (processedCallsRef.current.has(txId)) {
         console.log("=== V2 BATCH STATUS ALREADY HANDLED ===", txId);
@@ -971,9 +968,8 @@ export function MarketV2BuyInterface({
 
             toast({
               title: "Purchase Successful!",
-              description: `Successfully bought shares in ${
-                market.options[selectedOptionId || 0]?.name
-              }`,
+              description: `Successfully bought shares in ${market.options[selectedOptionId || 0]?.name
+                }`,
             });
 
             // Refetch option data to update UI
@@ -1018,9 +1014,8 @@ export function MarketV2BuyInterface({
             setAmount("");
             toast({
               title: "Purchase Successful!",
-              description: `Successfully bought shares in ${
-                market.options[selectedOptionId || 0]?.name
-              }`,
+              description: `Successfully bought shares in ${market.options[selectedOptionId || 0]?.name
+                }`,
             });
             refetchOptionData();
             dispatchMarketUpdate(); // Trigger global market update
@@ -1044,9 +1039,8 @@ export function MarketV2BuyInterface({
             setAmount("");
             toast({
               title: "Purchase Successful!",
-              description: `Successfully bought shares in ${
-                market.options[selectedOptionId || 0]?.name
-              }`,
+              description: `Successfully bought shares in ${market.options[selectedOptionId || 0]?.name
+                }`,
             });
             refetchOptionData();
             dispatchMarketUpdate(); // Trigger global market update
@@ -1062,9 +1056,8 @@ export function MarketV2BuyInterface({
           setAmount("");
           toast({
             title: "Purchase Successful!",
-            description: `Successfully bought shares in ${
-              market.options[selectedOptionId || 0]?.name
-            }`,
+            description: `Successfully bought shares in ${market.options[selectedOptionId || 0]?.name
+              }`,
           });
           refetchOptionData();
           dispatchMarketUpdate(); // Trigger global market update
@@ -1203,9 +1196,8 @@ export function MarketV2BuyInterface({
 
       toast({
         title: "Batch Transaction Failed",
-        description: `Transaction monitoring failed: ${
-          callsStatusErrorMsg.message || "Unknown error"
-        }`,
+        description: `Transaction monitoring failed: ${callsStatusErrorMsg.message || "Unknown error"
+          }`,
         variant: "destructive",
       });
       setBuyingStep("initial");
@@ -1256,9 +1248,8 @@ export function MarketV2BuyInterface({
         setBuyingStep("purchaseSuccess");
         toast({
           title: "Purchase Successful!",
-          description: `Successfully bought shares in ${
-            market.options[selectedOptionId!]?.name
-          }`,
+          description: `Successfully bought shares in ${market.options[selectedOptionId!]?.name
+            }`,
         });
         setAmount("");
         setIsBuying(false);
@@ -1614,7 +1605,7 @@ export function MarketV2BuyInterface({
                               const avgPricePerShare =
                                 estimatedCost && amountInUnits > 0n
                                   ? (estimatedCost * BigInt(1e18)) /
-                                    amountInUnits
+                                  amountInUnits
                                   : 0n;
                               return formatPrice(avgPricePerShare);
                             })()}{" "}

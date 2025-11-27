@@ -4,8 +4,6 @@ import { base } from "viem/chains";
 import {
   V2contractAddress,
   V2contractAbi,
-  PolicastViews,
-  PolicastViewsAbi,
 } from "@/constants/contract";
 import { MarketBasicInfoTuple } from "@/types/market";
 
@@ -22,17 +20,7 @@ async function readCore<TReturn>(
   })) as unknown as TReturn;
 }
 
-async function readView<TReturn>(
-  functionName: string,
-  args: readonly any[] = []
-): Promise<TReturn> {
-  return (await publicClient.readContract({
-    address: PolicastViews,
-    abi: PolicastViewsAbi as any,
-    functionName: functionName as any,
-    args: args as any,
-  })) as unknown as TReturn;
-}
+
 
 const publicClient = createPublicClient({
   chain: base,
@@ -221,7 +209,7 @@ async function checkMarketBatchForAdmin(
   for (let marketId = startId; marketId < endId; marketId++) {
     try {
       // Get market info to check market status
-      const marketInfo = await readView<readonly any[]>("getMarketInfo", [
+      const marketInfo = await readCore<readonly any[]>("getMarketBasicInfo", [
         BigInt(marketId),
       ]);
 
@@ -230,63 +218,24 @@ async function checkMarketBatchForAdmin(
         continue;
       }
 
-      // Get market creator from Views contract
-      const creator = await readView<string>("getMarketCreator", [
-        BigInt(marketId),
-      ]);
-
-      // Parse getMarketInfo defensively and fetch value-specific views to avoid
-      // tuple-index drift between ABI versions. PolicastViews may return a
-      // different tuple shape across deployments, so prefer dedicated getters
-      // for fields like optionCount, totalVolume and marketType when available.
+      // getMarketBasicInfo returns:
+      // (question, description, endTime, category, optionCount, resolved, marketType, invalidated, totalVolume)
       const raw = marketInfo as readonly any[];
       const question = String(raw[0] ?? "");
       const description = String(raw[1] ?? "");
       const endTime = BigInt(raw[2] ?? 0n);
       const category = Number(raw[3] ?? 0);
-      // Some Views implementations include marketType at index 4; others put
-      // optionCount there. Try to read explicit view getters for correctness.
-
-      // Try to read explicit getters (these are small view calls and more
-      // robust than relying on tuple positions):
-      let optionCountBig: bigint = 0n;
-      let totalVolumeBig: bigint = 0n;
-      let explicitMarketType: number | undefined = undefined;
-
-      try {
-        optionCountBig = (await readView<bigint>("getMarketOptionCount", [
-          BigInt(marketId),
-        ])) as bigint;
-      } catch (err) {
-        // Fallback: if explicit getter not present, attempt to use tuple value
-        optionCountBig = BigInt(raw[4] ?? 0n);
-      }
-
-      try {
-        totalVolumeBig = (await readView<bigint>("getMarketTotalVolume", [
-          BigInt(marketId),
-        ])) as bigint;
-      } catch (err) {
-        totalVolumeBig = BigInt(raw[9] ?? 0n);
-      }
-
-      try {
-        const mt = await readView<number | bigint>("getMarketType", [
-          BigInt(marketId),
-        ]);
-        if (typeof mt === "bigint") explicitMarketType = Number(mt as bigint);
-        else explicitMarketType = Number(mt as number);
-      } catch (err) {
-        // Fallback: try to obtain marketType from the tuple (common indices 4 or 7)
-        explicitMarketType = Number(raw[4] ?? raw[7] ?? 0);
-      }
-
-      const optionCount = optionCountBig;
-      const totalVolume = totalVolumeBig;
-      const marketType = explicitMarketType ?? 0; // 0 = paid, 1 = free (fallback)
+      const optionCount = Number(raw[4] ?? 0);
       const resolved = Boolean(raw[5] ?? false);
-      const _resolvedOutcome = Boolean(raw[6] ?? false);
-      const invalidated = Boolean(raw[8] ?? false);
+      const marketType = Number(raw[6] ?? 0);
+      const invalidated = Boolean(raw[7] ?? false);
+      const totalVolume = BigInt(raw[8] ?? 0n);
+
+      // Get market extended meta to get creator
+      const meta = await readCore<readonly any[]>("getMarketExtendedMeta", [
+        BigInt(marketId),
+      ]);
+      const creator = String(meta[3] ?? "");
 
       // Check if user is the market creator
       const isCreator = creator.toLowerCase() === userAddress.toLowerCase();
@@ -297,7 +246,6 @@ async function checkMarketBatchForAdmin(
         userAddress,
         isCreator,
         resolved,
-        _resolvedOutcome,
         invalidated,
         marketType,
         totalVolume: totalVolume.toString(),
@@ -307,21 +255,19 @@ async function checkMarketBatchForAdmin(
         // 1. Check for admin liquidity withdrawal
         // We need to get market financials to check admin liquidity status
         try {
-          // PolicastViews.getMarketFinancials returns:
-          // (creator, adminLiquidityClaimed, adminInitialLiquidity, userLiquidity, totalVolume, platformFeesCollected)
-          const marketFinancials = await readView<readonly any[]>(
-            "getMarketFinancials",
+          // getMarketFinancialsData returns:
+          // (createdAt, creator, adminLiquidityClaimed, adminInitialLiquidity, userLiquidity, totalVolume, platformFeesCollected)
+          const marketFinancials = await readCore<readonly any[]>(
+            "getMarketFinancialsData",
             [BigInt(marketId)]
           );
 
           if (marketFinancials) {
             const mf = marketFinancials as readonly any[];
-            const creatorFromMF = String(mf[0] ?? "");
-            const adminLiquidityClaimed = Boolean(mf[1] ?? false);
-            const adminInitialLiquidity = BigInt(mf[2] ?? 0n);
-            const userLiquidity = BigInt(mf[3] ?? 0n);
-            const totalVolumeFromMF = BigInt(mf[4] ?? 0n);
-            const platformFeesCollected = BigInt(mf[5] ?? 0n);
+            const adminLiquidityClaimed = Boolean(mf[2] ?? false);
+            const adminInitialLiquidity = BigInt(mf[3] ?? 0n);
+            const userLiquidity = BigInt(mf[4] ?? 0n);
+            const platformFeesCollected = BigInt(mf[6] ?? 0n);
 
             console.log(`Market ${marketId} financials:`, {
               adminInitialLiquidity: adminInitialLiquidity.toString(),
@@ -329,7 +275,6 @@ async function checkMarketBatchForAdmin(
               platformFeesCollected: platformFeesCollected.toString(),
               adminLiquidityClaimed,
               resolved,
-              _resolvedOutcome,
               invalidated,
               isInvalidatedMarket: invalidated,
               marketType,
@@ -353,13 +298,13 @@ async function checkMarketBatchForAdmin(
             ) {
               const description = invalidated
                 ? `Admin liquidity from invalidated market: ${question.slice(
-                    0,
-                    50
-                  )}...`
+                  0,
+                  50
+                )}...`
                 : `Admin liquidity from resolved market: ${question.slice(
-                    0,
-                    50
-                  )}...`;
+                  0,
+                  50
+                )}...`;
 
               withdrawals.push({
                 marketId,
@@ -368,17 +313,16 @@ async function checkMarketBatchForAdmin(
                 description,
               });
               console.log(
-                `Found admin liquidity withdrawal for market ${marketId}: ${adminInitialLiquidity.toString()} (${
-                  invalidated ? "invalidated" : "resolved"
+                `Found admin liquidity withdrawal for market ${marketId}: ${adminInitialLiquidity.toString()} (${invalidated ? "invalidated" : "resolved"
                 })`
               );
             } else {
               console.log(
                 `No admin liquidity withdrawal for market ${marketId}: ` +
-                  `amount=${adminInitialLiquidity.toString()}, ` +
-                  `claimed=${adminLiquidityClaimed}, ` +
-                  `resolved=${resolved}, ` +
-                  `invalidated=${invalidated}`
+                `amount=${adminInitialLiquidity.toString()}, ` +
+                `claimed=${adminLiquidityClaimed}, ` +
+                `resolved=${resolved}, ` +
+                `invalidated=${invalidated}`
               );
             }
           }
@@ -390,11 +334,9 @@ async function checkMarketBatchForAdmin(
         }
 
         // 2. Check for unused prize pool withdrawal (free markets only)
-        // Use marketType from tuple instead of heuristic contract call (0 = paid? 1 = free entry)
         const isFreeMarket = marketType === 1;
         if (isFreeMarket && resolved) {
           try {
-            // getUnusedPrizePool now uses readView (PolicastViews) below
             const unusedPrizePool = await getUnusedPrizePool(marketId);
             if (unusedPrizePool > 0n) {
               withdrawals.push({
@@ -417,7 +359,6 @@ async function checkMarketBatchForAdmin(
       }
 
       // 3. LP Rewards are not available in V3 LMSR contract
-      // The V3 contract uses LMSR instead of traditional LP reward system
       console.log(
         `Market ${marketId}: LP rewards not available in V3 contract (uses LMSR)`
       );
@@ -448,8 +389,7 @@ async function checkMarketBatchForAdmin(
 // Get unused prize pool for a free market
 async function getUnusedPrizePool(marketId: number): Promise<bigint> {
   try {
-    // getFreeMarketInfo lives on the Views contract — use readView, not readCore
-    const freeMarketInfo = await readView<readonly any[]>("getFreeMarketInfo", [
+    const freeMarketInfo = await readCore<readonly any[]>("getMarketFreeConfig", [
       BigInt(marketId),
     ]);
 
@@ -458,7 +398,7 @@ async function getUnusedPrizePool(marketId: number): Promise<bigint> {
     }
 
     const fm = freeMarketInfo as readonly any[];
-    // getFreeMarketInfo returns (maxFreeParticipants, tokensPerParticipant, currentFreeParticipants, totalPrizePool, remainingPrizePool, isActive)
+    // getMarketFreeConfig returns (maxFreeParticipants, tokensPerParticipant, currentFreeParticipants, totalPrizePool, remainingPrizePool, isActive)
     const maxParticipants = BigInt(fm[0] ?? 0n);
     const tokensPerParticipant = BigInt(fm[1] ?? 0n);
     const currentParticipants = BigInt(fm[2] ?? 0n);

@@ -1,9 +1,9 @@
 "use client";
 
 import { createConfig, http, WagmiProvider } from "wagmi";
-import { base } from "wagmi/chains";
+import { celoAlfajores } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { farcasterMiniApp as miniAppConnector } from "@farcaster/miniapp-wagmi-connector";
+
 import { coinbaseWallet, metaMask, walletConnect } from "wagmi/connectors";
 // import { APP_NAME, APP_ICON_URL, APP_URL } from "@lib/constants";
 import { useEffect, useState, createContext, useContext } from "react";
@@ -12,7 +12,7 @@ import React from "react";
 
 // Constants
 
-const APP_NAME: string = "Policast";
+const APP_NAME: string = process.env.NEXT_PUBLIC_APP_NAME!;
 const APP_URL: string = process.env.NEXT_PUBLIC_URL!;
 const APP_ICON_URL: string = `${APP_URL}/icon.png`;
 
@@ -33,7 +33,7 @@ const WalletContext = createContext<WalletContextType | null>(null);
 export function useWallet(): WalletContextType {
   const context = useContext(WalletContext);
   if (!context) {
-    throw new Error("useWallet must be used within WalmiProvider");
+    throw new Error("useWallet must be used within WagmiProvider");
   }
   return context;
 }
@@ -73,12 +73,11 @@ function useCoinbaseWalletAutoConnect() {
 }
 
 export const config = createConfig({
-  chains: [base],
+  chains: [celoAlfajores],
   transports: {
-    [base.id]: http(process.env.NEXT_PUBLIC_ALCHEMY_RPC_URL),
+    [celoAlfajores.id]: http(process.env.NEXT_PUBLIC_RPC_URL),
   },
   connectors: [
-    miniAppConnector(),
     coinbaseWallet({
       appName: APP_NAME,
       appLogoUrl: APP_ICON_URL,
@@ -95,7 +94,7 @@ export const config = createConfig({
       showQrModal: true,
       metadata: {
         name: APP_NAME,
-        description: "Policast - Social podcasting on Farcaster",
+        description: "Predicta - Prediction Markets",
         url: APP_URL,
         icons: [APP_ICON_URL],
       },
@@ -121,7 +120,6 @@ function WalletProvider({ children }: { children: React.ReactNode }) {
   // Determine primary connector with better fallback logic
   const primaryConnector = React.useMemo(() => {
     return (
-      wagmiConnectors.find((c) => c.id === "miniAppConnector") ||
       wagmiConnectors.find((c) => c.id.includes("coinbase")) ||
       wagmiConnectors.find((c) => c.id === "walletConnect") ||
       wagmiConnectors[0] ||

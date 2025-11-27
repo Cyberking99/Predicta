@@ -23,7 +23,7 @@ import { encodeFunctionData } from "viem";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
-import { sdk } from "@farcaster/miniapp-sdk";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
 
@@ -80,15 +80,9 @@ export function MarketBuyInterface({
   });
   const { toast } = useToast();
 
-  // Check if we're using Farcaster connector
-  const isFarcasterConnector =
-    connector?.id === "miniAppConnector" ||
-    connector?.name?.includes("Farcaster");
-
   console.log("=== CONNECTOR DEBUG ===");
   console.log("Connector ID:", connector?.id);
   console.log("Connector Name:", connector?.name);
-  console.log("Is Farcaster:", isFarcasterConnector);
   console.log("Connector Client:", connectorClient);
 
   const [isBuying, setIsBuying] = useState(false);
@@ -157,9 +151,8 @@ export function MarketBuyInterface({
         } else {
           toast({
             title: "Batch Transaction Failed",
-            description: `Failed to submit batch transaction: ${
-              err.message || "Unknown error"
-            }. Using fallback method.`,
+            description: `Failed to submit batch transaction: ${err.message || "Unknown error"
+              }. Using fallback method.`,
             variant: "destructive",
             duration: 5000,
           });
@@ -514,9 +507,8 @@ export function MarketBuyInterface({
 
       toast({
         title: "Batch Transaction Failed",
-        description: `Transaction monitoring failed: ${
-          callsStatusErrorMsg.message || "Unknown error"
-        }`,
+        description: `Transaction monitoring failed: ${callsStatusErrorMsg.message || "Unknown error"
+          }`,
         variant: "destructive",
       });
       setIsProcessing(false);
@@ -705,7 +697,7 @@ export function MarketBuyInterface({
       console.log("Selected option A:", selectedOption === "A");
       console.log("Balance before batch:", balance.toString());
       console.log("Current allowance:", userAllowance.toString());
-      console.log("Is Farcaster connector:", isFarcasterConnector);
+
 
       // Prepare batch calls without explicit value fields
       const batchCalls = [
@@ -732,15 +724,9 @@ export function MarketBuyInterface({
       console.log("BuyShares call data:", batchCalls[1].data);
 
       // Check if we can use EIP-5792 batch transactions
-      if (isFarcasterConnector) {
-        console.log(
-          "🔗 Using Farcaster wallet with EIP-5792 batch transactions"
-        );
-      } else {
-        console.log(
-          "🔗 Using standard wallet with EIP-5792 batch transactions"
-        );
-      }
+      console.log(
+        "🔗 Using standard wallet with EIP-5792 batch transactions"
+      );
 
       // Try the batch transaction
       // Ensure addresses are typed as `0x${string}` so the sendCalls typing is satisfied.
@@ -779,28 +765,6 @@ export function MarketBuyInterface({
     }
   };
 
-  const handleShareAfterPurchase = async () => {
-    try {
-      const appUrl =
-        process.env.NEXT_PUBLIC_APP_URL || "https://buster-mkt.vercel.app";
-      const marketPageUrl = `${appUrl}/market/${marketId}/details`;
-
-      await sdk.actions.composeCast({
-        text: `I just bought shares in this market on Policast: ${
-          market?.question || `Market ${marketId}`
-        }`,
-        embeds: [marketPageUrl],
-      });
-    } catch (error) {
-      console.error("Failed to compose cast after purchase:", error);
-      toast({
-        title: "Share Error",
-        description: "Could not open share dialog.",
-        variant: "destructive",
-      });
-    }
-    handleCancel(); // Close the interface after attempting to share
-  };
   // Effect to handle transaction confirmation
   useEffect(() => {
     if (isTxConfirmed && hash && hash !== lastProcessedHash) {
@@ -1071,9 +1035,9 @@ export function MarketBuyInterface({
                     }
                   >
                     {isProcessing ||
-                    isWritePending ||
-                    isConfirmingTx ||
-                    callsPending ? (
+                      isWritePending ||
+                      isConfirmingTx ||
+                      callsPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         {"Processing Batch..."}
@@ -1169,16 +1133,7 @@ export function MarketBuyInterface({
                   shares.
                 </p>
                 <div className="flex gap-2 mt-2">
-                  <Button
-                    onClick={handleShareAfterPurchase}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    <FontAwesomeIcon
-                      icon={faShareFromSquare}
-                      className="mr-2 h-4 w-4"
-                    />
-                    Share this Market
-                  </Button>
+
                   <Button onClick={handleCancel} variant="outline">
                     Done
                   </Button>

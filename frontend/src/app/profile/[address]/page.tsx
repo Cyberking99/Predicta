@@ -1,6 +1,6 @@
 import { Metadata, ResolvingMetadata } from "next";
 import { UserStats } from "@/components/UserStats";
-import { MiniAppClient } from "@/components/MiniAppClient";
+
 
 interface Props {
   params: Promise<{ address: string }>;
@@ -46,33 +46,18 @@ export async function generateMetadata(
     const displayName = username ? `@${username}` : "Anonymous Trader";
     const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
     const checkYoursUrl = `${baseUrl}/?tab=myvotes`;
-    const miniAppEmbed = {
-      version: "1" as const,
-      imageUrl: imageUrl,
-      button: {
-        title: "Check Yours",
-        action: {
-          type: "launch_miniapp" as const,
-          name: "Policast Stats",
-          url: checkYoursUrl,
-          iconUrl: pfpUrl || "https://buster-mkt.vercel.app/icon.png",
-          splashImageUrl: pfpUrl || "https://buster-mkt.vercel.app/icon.jpg",
-          splashBackgroundColor: "#131E2A",
-        },
-      },
-    };
+
 
     const resolvedParent = await parent;
     const otherParentData = resolvedParent.other || {};
 
-    const fcFrameKey = "fc:miniapp" as string;
+
 
     return {
       title: `${displayName}'s Stats - Policast`,
       description: `Check out ${displayName}'s prediction market performance on Policast - ${shortAddress}`,
       other: {
         ...otherParentData,
-        [fcFrameKey]: JSON.stringify(miniAppEmbed),
       },
       metadataBase: new URL(baseUrl),
       openGraph: {
@@ -123,7 +108,7 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <MiniAppClient />
+
 
       {/* Pass user data as props if available */}
       <div className="space-y-6">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { sdk } from "@farcaster/miniapp-sdk";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/navbar";
@@ -129,8 +129,8 @@ export function MarketDetailsClient({
     typeof opt === "string"
       ? opt
       : opt && typeof opt === "object"
-      ? String((opt as any).name ?? `Option ${idx + 1}`)
-      : `Option ${idx + 1}`
+        ? String((opt as any).name ?? `Option ${idx + 1}`)
+        : `Option ${idx + 1}`
   );
 
   const normalizedOptionObjects: MarketOption[] = (market.options || []).map(
@@ -189,8 +189,8 @@ export function MarketDetailsClient({
   const probabilities =
     market.version === "v2" && marketOddsRaw
       ? (marketOddsRaw as readonly bigint[]).map(
-          (odd) => Number(odd) / 1e16 // Convert to percentage (0-100)
-        )
+        (odd) => Number(odd) / 1e16 // Convert to percentage (0-100)
+      )
       : [];
 
   // Reset roles check when marketId changes
@@ -230,14 +230,7 @@ export function MarketDetailsClient({
   }, [marketId, market.version, rolesChecked]); // Removed function dependencies
 
   useEffect(() => {
-    const signalReady = async () => {
-      await sdk.actions.ready();
-      (async () => {
-        await sdk.actions.addFrame();
-      })();
-      console.log("MarketDetailsClient: Mini App signaled ready.");
-    };
-    signalReady();
+    // Farcaster ready signal removed
   }, []);
   const totalSharesInUnits =
     market.version === "v2" && market.optionShares
@@ -254,18 +247,18 @@ export function MarketDetailsClient({
     optionAPercentage =
       totalSharesInUnits > 0n
         ? Math.round(
-            (Number(market.totalOptionAShares || 0n) /
-              Number(totalSharesInUnits)) *
-              100
-          )
+          (Number(market.totalOptionAShares || 0n) /
+            Number(totalSharesInUnits)) *
+          100
+        )
         : 50;
     optionBPercentage =
       totalSharesInUnits > 0n
         ? Math.round(
-            (Number(market.totalOptionBShares || 0n) /
-              Number(totalSharesInUnits)) *
-              100
-          )
+          (Number(market.totalOptionBShares || 0n) /
+            Number(totalSharesInUnits)) *
+          100
+        )
         : 50;
   }
 
@@ -362,16 +355,15 @@ export function MarketDetailsClient({
                   <div className="text-xs md:text-sm text-gray-300">
                     {market.version === "v2" && optionLabels.length > 0
                       ? optionLabels[
-                          Number(market.winningOptionId ?? market.outcome ?? 0)
-                        ] ??
-                        `Option ${
-                          Number(
-                            market.winningOptionId ?? market.outcome ?? 0
-                          ) + 1
-                        }`
+                      Number(market.winningOptionId ?? market.outcome ?? 0)
+                      ] ??
+                      `Option ${Number(
+                        market.winningOptionId ?? market.outcome ?? 0
+                      ) + 1
+                      }`
                       : market.outcome === 1
-                      ? market.optionA
-                      : market.optionB}
+                        ? market.optionA
+                        : market.optionB}
                   </div>
                 </div>
               </div>
@@ -481,8 +473,8 @@ export function MarketDetailsClient({
               Current Market Sentiment
             </h3>
             {market.version === "v2" &&
-            market.options &&
-            normalizedOptionObjects.length > 0 ? (
+              market.options &&
+              normalizedOptionObjects.length > 0 ? (
               <MultiOptionProgress
                 marketId={Number(marketId)}
                 options={normalizedOptionObjects}

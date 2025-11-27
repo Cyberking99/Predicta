@@ -15,8 +15,6 @@ import {
   V2contractAbi,
   tokenAddress as defaultTokenAddress,
   tokenAbi as defaultTokenAbi,
-  PolicastViews,
-  PolicastViewsAbi,
 } from "@/constants/contract";
 
 const CACHE_KEY = "vote_history_cache_v6";
@@ -175,40 +173,27 @@ export function VoteHistory() {
 
   const fetchV2Trades = async (address: Address): Promise<V2Trade[]> => {
     try {
-      const portfolioParams: any = {
-        address: PolicastViews,
-        abi: PolicastViewsAbi,
-        functionName: "getUserPortfolio",
+      const portfolio = (await publicClient.readContract({
+        address: V2contractAddress,
+        abi: V2contractAbi,
+        functionName: "userPortfolios",
         args: [address],
-      };
+      })) as [bigint, bigint, bigint, bigint, bigint];
 
-      const portfolio = (await (publicClient.readContract as any)(
-        portfolioParams
-      )) as {
-        totalInvested: bigint;
-        totalWinnings: bigint;
-        unrealizedPnL: bigint;
-        realizedPnL: bigint;
-        tradeCount: bigint;
-      };
-
-      const tradeCount = Number(portfolio.tradeCount);
+      // portfolio is [totalInvested, totalWinnings, unrealizedPnL, realizedPnL, tradeCount]
+      const tradeCount = Number(portfolio[4]);
 
       if (tradeCount === 0) return [];
 
       const trades: V2Trade[] = [];
       for (let i = 0; i < tradeCount; i++) {
         try {
-          const tradeParams: any = {
+          const trade = (await publicClient.readContract({
             address: V2contractAddress,
             abi: V2contractAbi,
             functionName: "userTradeHistory",
             args: [address, BigInt(i)],
-          };
-
-          const trade = (await (publicClient.readContract as any)(
-            tradeParams
-          )) as [bigint, bigint, string, string, bigint, bigint, bigint];
+          })) as [bigint, bigint, string, string, bigint, bigint, bigint];
 
           trades.push({
             marketId: trade[0],
@@ -254,15 +239,15 @@ export function VoteHistory() {
         functionName: "getMarketInfoBatch",
         args: [uncachedV1Ids.map(BigInt)],
       })) as [
-        string[],
-        string[],
-        string[],
-        bigint[],
-        number[],
-        bigint[],
-        bigint[],
-        boolean[]
-      ];
+          string[],
+          string[],
+          string[],
+          bigint[],
+          number[],
+          bigint[],
+          bigint[],
+          boolean[]
+        ];
 
       const [questions, optionAs, optionBs] = marketInfos;
       uncachedV1Ids.forEach((id, i) => {
@@ -288,16 +273,16 @@ export function VoteHistory() {
             functionName: "getMarketBasicInfo",
             args: [BigInt(marketId)],
           })) as [
-            string,
-            string,
-            bigint,
-            number,
-            bigint,
-            boolean,
-            number,
-            boolean,
-            bigint
-          ];
+              string,
+              string,
+              bigint,
+              number,
+              bigint,
+              boolean,
+              number,
+              boolean,
+              bigint
+            ];
 
           const [question, , , , optionCount] = marketBasicInfo;
 
@@ -518,21 +503,19 @@ export function VoteHistory() {
           <div className="flex gap-2">
             <button
               onClick={() => handleSort("timestamp")}
-              className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                sortKey === "timestamp"
-                  ? "bg-white/20 text-white"
-                  : "bg-white/10 text-white/80 hover:bg-white/15"
-              }`}
+              className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all ${sortKey === "timestamp"
+                ? "bg-white/20 text-white"
+                : "bg-white/10 text-white/80 hover:bg-white/15"
+                }`}
             >
               Date <ArrowUpDown className="h-3 w-3" />
             </button>
             <button
               onClick={() => handleSort("amount")}
-              className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                sortKey === "amount"
-                  ? "bg-white/20 text-white"
-                  : "bg-white/10 text-white/80 hover:bg-white/15"
-              }`}
+              className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all ${sortKey === "amount"
+                ? "bg-white/20 text-white"
+                : "bg-white/10 text-white/80 hover:bg-white/15"
+                }`}
             >
               Amount <ArrowUpDown className="h-3 w-3" />
             </button>
@@ -557,26 +540,24 @@ export function VoteHistory() {
                       #{vote.marketId}
                     </Link>
                     <span
-                      className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-medium ${
-                        vote.type === "vote"
-                          ? "bg-green-100 text-green-700"
-                          : vote.type === "buy"
+                      className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-medium ${vote.type === "vote"
+                        ? "bg-green-100 text-green-700"
+                        : vote.type === "buy"
                           ? "bg-blue-100 text-blue-700"
                           : "bg-red-100 text-red-700"
-                      }`}
+                        }`}
                     >
                       {vote.type === "vote"
                         ? "🗳️"
                         : vote.type === "buy"
-                        ? "📈"
-                        : "📉"}
+                          ? "📈"
+                          : "📉"}
                     </span>
                     <span
-                      className={`text-xs px-1.5 py-0.5 rounded font-medium ${
-                        vote.version === "v1"
-                          ? "bg-white/20 text-white/90"
-                          : "bg-white/20 text-white/90"
-                      }`}
+                      className={`text-xs px-1.5 py-0.5 rounded font-medium ${vote.version === "v1"
+                        ? "bg-white/20 text-white/90"
+                        : "bg-white/20 text-white/90"
+                        }`}
                     >
                       {vote.version.toUpperCase()}
                     </span>
