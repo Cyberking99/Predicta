@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://buster-mkt.vercel.app/sitemap.xml

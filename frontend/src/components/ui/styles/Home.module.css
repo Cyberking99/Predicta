@@ -1,0 +1,16 @@
+.connectButton {
+    background-color: #18DDF7 !important;
+    border-radius: 9999px !important; /* Fully rounded look */
+    color: #fff !important;
+    cursor: pointer !important;
+    font-size: 100% !important;
+    height: 44px !important;
+    padding: 0 25px !important;
+    text-align: center !important;
+    transition: all 0.3s ease-in-out !important; /* Smooth transition for hover effect */
+}
+
+.connectButton:hover {
+    background-color: #195281 !important; /* Change background color on hover */
+    transform: scale(1.05) !important; /* Slightly enlarge on hover */
+}

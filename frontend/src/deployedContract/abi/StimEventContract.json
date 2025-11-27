@@ -1,0 +1,958 @@
+[
+    {
+        "type": "constructor",
+        "inputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "CLAIM_DEADLINE",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "DEFAULT_ADMIN_ROLE",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "checkNullificationConditions",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "shouldNullify",
+                "type": "bool",
+                "internalType": "bool"
+            },
+            {
+                "name": "reason",
+                "type": "string",
+                "internalType": "string"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "claimCreatorReward",
+        "inputs": [],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "claimCreatorStakeRefund",
+        "inputs": [],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "claimNullificationRefund",
+        "inputs": [],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "claimReward",
+        "inputs": [],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "eventCompletedTime",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "eventCreator",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "eventDetails",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "question",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "description",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "eventType",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "category",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "eventImage",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "status",
+                "type": "uint8",
+                "internalType": "enum EventContract.EventStatus"
+            },
+            {
+                "name": "endTime",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "winningOption",
+                "type": "uint8",
+                "internalType": "uint8"
+            },
+            {
+                "name": "creator",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "tokenAddress",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "creatorStake",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "totalStaked",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "creatorFeePercentage",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "creatorRewardClaimed",
+                "type": "bool",
+                "internalType": "bool"
+            },
+            {
+                "name": "nullificationReason",
+                "type": "string",
+                "internalType": "string"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "factory",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "getEventDetails",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "question",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "description",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "options",
+                "type": "string[]",
+                "internalType": "string[]"
+            },
+            {
+                "name": "eventType",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "category",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "eventImage",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "status",
+                "type": "uint8",
+                "internalType": "enum EventContract.EventStatus"
+            },
+            {
+                "name": "endTime",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "winningOption",
+                "type": "uint8",
+                "internalType": "uint8"
+            },
+            {
+                "name": "creator",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "tokenAddress",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "creatorStake",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "totalStaked",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "creatorFeePercentage",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "creatorRewardClaimed",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "getNullificationReason",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "string",
+                "internalType": "string"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "getOptionTotals",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256[]",
+                "internalType": "uint256[]"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "getRoleAdmin",
+        "inputs": [
+            {
+                "name": "role",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "getStakersCount",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "getUserStake",
+        "inputs": [
+            {
+                "name": "_user",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "selectedOption",
+                "type": "uint8",
+                "internalType": "uint8"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "claimed",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "grantRole",
+        "inputs": [
+            {
+                "name": "role",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            },
+            {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "hasRole",
+        "inputs": [
+            {
+                "name": "role",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            },
+            {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "initialize",
+        "inputs": [
+            {
+                "name": "_question",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "_description",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "_options",
+                "type": "string[]",
+                "internalType": "string[]"
+            },
+            {
+                "name": "_eventType",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "_category",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "_eventImage",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "_endTime",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "_creator",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "_factoryContract",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "_tokenAddress",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "_stimToken",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "_creatorStake",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "_creatorFeePercentage",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "nullifyEvent",
+        "inputs": [
+            {
+                "name": "_reason",
+                "type": "string",
+                "internalType": "string"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "optionTotals",
+        "inputs": [
+            {
+                "name": "",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "refundAllStakes",
+        "inputs": [],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "refundCreatorStake",
+        "inputs": [],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "renounceRole",
+        "inputs": [
+            {
+                "name": "role",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            },
+            {
+                "name": "callerConfirmation",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "revokeRole",
+        "inputs": [
+            {
+                "name": "role",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            },
+            {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "setMultipleWinners",
+        "inputs": [
+            {
+                "name": "_winningOptions",
+                "type": "uint8[]",
+                "internalType": "uint8[]"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "setWinningOption",
+        "inputs": [
+            {
+                "name": "_winningOption",
+                "type": "uint8",
+                "internalType": "uint8"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "stake",
+        "inputs": [
+            {
+                "name": "_option",
+                "type": "uint8",
+                "internalType": "uint8"
+            },
+            {
+                "name": "_amount",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "stakers",
+        "inputs": [
+            {
+                "name": "",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "stimToken",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "supportsInterface",
+        "inputs": [
+            {
+                "name": "interfaceId",
+                "type": "bytes4",
+                "internalType": "bytes4"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "updateEventStatus",
+        "inputs": [
+            {
+                "name": "_status",
+                "type": "uint8",
+                "internalType": "enum EventContract.EventStatus"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "userStakes",
+        "inputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "selectedOption",
+                "type": "uint8",
+                "internalType": "uint8"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "claimed",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "withdrawStake",
+        "inputs": [],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "event",
+        "name": "CreatorRewardClaimed",
+        "inputs": [
+            {
+                "name": "creator",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "EventNullified",
+        "inputs": [
+            {
+                "name": "reason",
+                "type": "string",
+                "indexed": false,
+                "internalType": "string"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "EventStatusUpdated",
+        "inputs": [
+            {
+                "name": "status",
+                "type": "uint8",
+                "indexed": false,
+                "internalType": "enum EventContract.EventStatus"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "MultipleWinnersSet",
+        "inputs": [
+            {
+                "name": "winningOptions",
+                "type": "uint8[]",
+                "indexed": false,
+                "internalType": "uint8[]"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "RewardClaimed",
+        "inputs": [
+            {
+                "name": "user",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "RoleAdminChanged",
+        "inputs": [
+            {
+                "name": "role",
+                "type": "bytes32",
+                "indexed": true,
+                "internalType": "bytes32"
+            },
+            {
+                "name": "previousAdminRole",
+                "type": "bytes32",
+                "indexed": true,
+                "internalType": "bytes32"
+            },
+            {
+                "name": "newAdminRole",
+                "type": "bytes32",
+                "indexed": true,
+                "internalType": "bytes32"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "RoleGranted",
+        "inputs": [
+            {
+                "name": "role",
+                "type": "bytes32",
+                "indexed": true,
+                "internalType": "bytes32"
+            },
+            {
+                "name": "account",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "sender",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "RoleRevoked",
+        "inputs": [
+            {
+                "name": "role",
+                "type": "bytes32",
+                "indexed": true,
+                "internalType": "bytes32"
+            },
+            {
+                "name": "account",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "sender",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "StakePlaced",
+        "inputs": [
+            {
+                "name": "user",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "selectedOption",
+                "type": "uint8",
+                "indexed": false,
+                "internalType": "uint8"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "StakeWithdrawn",
+        "inputs": [
+            {
+                "name": "user",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "WinningOptionSet",
+        "inputs": [
+            {
+                "name": "winningOption",
+                "type": "uint8",
+                "indexed": false,
+                "internalType": "uint8"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "error",
+        "name": "AccessControlBadConfirmation",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "AccessControlUnauthorizedAccount",
+        "inputs": [
+            {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "neededRole",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "ReentrancyGuardReentrantCall",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "SafeERC20FailedOperation",
+        "inputs": [
+            {
+                "name": "token",
+                "type": "address",
+                "internalType": "address"
+            }
+        ]
+    }
+]
