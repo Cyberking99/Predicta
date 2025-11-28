@@ -16,7 +16,6 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 // Import the updated blockies utility
 import {
   generateBlockiesAvatar,
-  generateBlockiesAvatar,
   getCurrentAvatar,
 } from "../utils/blockiesAvatar";
 import { isMiniPay } from "../utils/chainUtils";
