@@ -30,7 +30,7 @@ export const isChainSupported = (chainId) => {
  * @returns {boolean} - True if running in MiniPay
  */
 export const isMiniPay = () => {
-  return typeof window !== 'undefined' && window.ethereum && (window.ethereum.isMiniPay || window.ethereum.isOpera);
+  return typeof window !== 'undefined' && window.ethereum && (window.ethereum.isMiniPay);
 };
 
 /**
