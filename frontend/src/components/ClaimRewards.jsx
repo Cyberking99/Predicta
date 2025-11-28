@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAccount, useBalance } from "wagmi";
-import { celoAlfajores } from "wagmi/chains";
+import { useAccount, useBalance, useSwitchChain, useChainId } from "wagmi";
+import { celoSepolia } from "../wagmi/config";
 import { useNotifications } from "./NotificationProvider";
 import { useClaimReward } from "../../hooks/staking/useClaimReward";
 import {
@@ -12,22 +12,45 @@ import {
   AlertCircle,
 } from "lucide-react";
 import CUSD from "../assets/images/pngs/cUSD.png";
+import { toast } from "react-toastify";
+import { parseUnits } from "viem";
+import { useReadContract } from "wagmi";
 
 // STIM token address
 const CUSD_ADDRESS = import.meta.env.VITE_CUSD_ADDRESS;
 
 const ClaimRewardsPage = () => {
   const navigate = useNavigate();
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
+  const { switchChain } = useSwitchChain();
+  const chainId = useChainId();
   const { notifications } = useNotifications();
   const [claimingEventId, setClaimingEventId] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // Get current STIM balance
   const { data: stimBalanceData, refetch: refetchBalance } = useBalance({
     address: address,
     token: CUSD_ADDRESS,
-    chainId: celoAlfajores.id,
+    chainId: celoSepolia.id,
     enabled: !!address,
+  });
+
+  // Contract read hook for rewards
+  const { data: rewardsData, refetch: refetchRewards } = useReadContract({
+    address: import.meta.env.VITE_FACTORY_ADDRESS,
+    abi: [
+      {
+        inputs: [{ internalType: "address", name: "user", type: "address" }],
+        name: "getPendingRewards",
+        outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+        stateMutability: "view",
+        type: "function",
+      },
+    ],
+    functionName: "getPendingRewards",
+    args: [address],
+    enabled: !!address && chainId === celoSepolia.id,
   });
 
   // Filter notifications to get winning, losing, and claimed notifications
@@ -104,10 +127,10 @@ const ClaimRewardsPage = () => {
             )}
             <span
               className={`text-sm font-semibold ${type === "claimable"
-                  ? "text-[#27FE60]"
-                  : type === "claimed"
-                    ? "text-green-400"
-                    : "text-red-400"
+                ? "text-[#27FE60]"
+                : type === "claimed"
+                  ? "text-green-400"
+                  : "text-red-400"
                 }`}
             >
               {type === "claimable"
@@ -186,8 +209,8 @@ const ClaimRewardsPage = () => {
             <button
               onClick={() => handleViewResult(notification)}
               className={`flex-1 py-2 px-4 rounded-full font-semibold ${type === "lost"
-                  ? "bg-red-600 text-white hover:bg-red-700"
-                  : "bg-gray-600 text-white hover:bg-gray-700"
+                ? "bg-red-600 text-white hover:bg-red-700"
+                : "bg-gray-600 text-white hover:bg-gray-700"
                 }`}
             >
               View Details

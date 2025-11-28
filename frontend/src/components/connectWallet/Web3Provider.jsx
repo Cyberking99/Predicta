@@ -6,28 +6,23 @@ import {
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
-import { celoAlfajores } from 'wagmi/chains';
+import { celoSepolia } from '../../wagmi/config';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { http } from 'wagmi';
 
-// Configure wagmi with RainbowKit - Celo Alfajores
+// Configure wagmi with RainbowKit - Celo Sepolia
 const config = getDefaultConfig({
   // Your dApp info
-  appName: "Prediction & Staking Platform",
-  appDescription: "Crypto Prediction & Staking Platform",
-  appUrl: "https://predicta-app.vercel.app",
-  appIcon: "https://predicta-app.vercel.app/logo.png", // Replace with your actual icon
-
-  // WalletConnect Project ID
+  appName: "Predicta",
   projectId: import.meta.env.VITE_REOWN_PROJECT_ID,
 
-  // Your dApp's chains - Celo Alfajores
-  chains: [celoAlfajores],
+  // Your dApp's chains - Celo Sepolia
+  chains: [celoSepolia],
 
-  // Custom transports with your Alchemy keys - Celo Alfajores
+  // Custom transports with your Alchemy keys - Celo Sepolia
   transports: {
-    [celoAlfajores.id]: http(
-      `https://rpc.ankr.com/celo_sepolia`,
+    [celoSepolia.id]: http(
+      `https://forno.celo-sepolia.celo-testnet.org`,
     ),
   },
 
@@ -100,7 +95,7 @@ export const Web3Provider = ({ children }) => {
         <RainbowKitProvider
           theme={myCustomTheme}
           modalSize="compact"
-          initialChain={celoAlfajores}
+          initialChain={celoSepolia}
         >
           {children}
         </RainbowKitProvider>

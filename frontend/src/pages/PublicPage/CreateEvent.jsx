@@ -17,7 +17,7 @@ import Flames from "../../assets/images/svgs/flames.svg";
 import CUSD from "../../assets/images/pngs/cUSD.png";
 import USDC from "../../assets/images/svgs/USDC.svg";
 import STIM from "../../assets/images/svgs/stim-coin.svg";
-import { celoAlfajores } from "wagmi/chains";
+import { celoSepolia } from "../../wagmi/config";
 
 // Components
 import StepsIndicator from "../../components/StepsIndicator";
@@ -100,7 +100,7 @@ const STAKING_TOKENS = [
 const CREATOR_FEE_TOKEN = import.meta.env.VITE_CUSD_ADDRESS;
 
 // Define supported networks
-const SUPPORTED_NETWORKS = [44787];
+const SUPPORTED_NETWORKS = [11142220];
 
 const CreateEvent = () => {
   const navigate = useNavigate();
@@ -147,7 +147,7 @@ const CreateEvent = () => {
       import.meta.env.VITE_ADMIN_ROLE_HASH,
       address,
     ],
-    enabled: !!address && chainId === celoAlfajores.id,
+    enabled: !!address && chainId === celoSepolia.id,
   });
 
   // Check if current user is a moderator - UPDATED TO USE MAINNET FACTORY
@@ -160,7 +160,7 @@ const CreateEvent = () => {
         import.meta.env.VITE_MODERATOR_ROLE_HASH,
         address,
       ],
-      enabled: !!address && chainId === celoAlfajores.id,
+      enabled: !!address && chainId === celoSepolia.id,
     });
 
   // Determine if user is exempt from creator stake
@@ -187,21 +187,21 @@ const CreateEvent = () => {
     address: MAINNET_FACTORY_ADDRESS,
     abi: stakingABI,
     functionName: "getAllCategories",
-    enabled: chainId === celoAlfajores.id,
+    enabled: chainId === celoSepolia.id,
   });
 
   const { data: creatorStakeAmount } = useReadContract({
     address: MAINNET_FACTORY_ADDRESS,
     abi: stakingABI,
     functionName: "creatorStakeAmount",
-    enabled: chainId === celoAlfajores.id,
+    enabled: chainId === celoSepolia.id,
   });
 
   const { data: defaultCreatorFeePercentage } = useReadContract({
     address: MAINNET_FACTORY_ADDRESS,
     abi: stakingABI,
     functionName: "defaultCreatorFeePercentage",
-    enabled: chainId === celoAlfajores.id,
+    enabled: chainId === celoSepolia.id,
   });
 
   // Check staking token balance (user's choice)
@@ -257,9 +257,9 @@ const CreateEvent = () => {
     hash: createEventHash,
   });
 
-  // Set up allowed staking tokens for Celo Alfajores
+  // Set up allowed staking tokens for Celo Sepolia
   useEffect(() => {
-    if (chainId === celoAlfajores.id) {
+    if (chainId === celoSepolia.id) {
       setAllowedTokens(STAKING_TOKENS);
     } else {
       setAllowedTokens(STAKING_TOKENS);
@@ -292,13 +292,26 @@ const CreateEvent = () => {
     }
   }, [chainId]);
 
-  // Check supported network
+  // Check supported network and enforce switch
   useEffect(() => {
-    if (isConnected && chainId && chainId !== celoAlfajores.id) {
-      toast.warn("Switching to Celo Alfajores...");
-      switchChain({ chainId: celoAlfajores.id });
-    }
+    const enforceNetwork = async () => {
+      if (isConnected && chainId && chainId !== celoSepolia.id) {
+        try {
+          // Only attempt to switch if we haven't just tried (avoid loops)
+          // But for "enforce", we usually want to be aggressive or show UI
+          console.log("Wrong network detected. Requesting switch to Celo Sepolia...");
+          await switchChain({ chainId: celoSepolia.id });
+        } catch (error) {
+          console.error("Failed to switch network:", error);
+          toast.error("Please switch your wallet to Celo Sepolia to continue.");
+        }
+      }
+    };
+
+    enforceNetwork();
   }, [isConnected, chainId, switchChain]);
+
+
 
   // Process categories
   useEffect(() => {
@@ -322,7 +335,7 @@ const CreateEvent = () => {
           categoryId: "0",
         }));
       }
-    } else if (categoriesError || chainId !== celoAlfajores.id) {
+    } else if (categoriesError || chainId !== celoSepolia.id) {
       console.log(categoriesError, categories)
       const mockCategories = [
         {
@@ -340,8 +353,8 @@ const CreateEvent = () => {
       ];
       setCategoryList(mockCategories);
       setIsUsingFallbackData(true);
-      if (chainId !== celoAlfajores.id) {
-        toast.warn("Using fallback categories - please switch to Celo Alfajores");
+      if (chainId !== celoSepolia.id) {
+        toast.warn("Using fallback categories - please switch to Celo Sepolia");
       }
     }
   }, [categories, categoriesError, chainId]);
@@ -370,9 +383,9 @@ const CreateEvent = () => {
       let errorMessage = "STIM creator fee approval failed"
 
       if (stimApprovalError.message.includes("insufficient funds")) {
-        errorMessage = "Low ETH balance. You need ETH for gas fees."
+        errorMessage = "Low CELO balance. You need CELO for gas fees."
       } else if (stimApprovalError.message.includes("gas required exceeds allowance")) {
-        errorMessage = "Low ETH balance. You need ETH for gas fees."
+        errorMessage = "Low CELO balance. You need CELO for gas fees."
       } else if (stimApprovalError.message.includes("execution reverted")) {
         errorMessage = "Transaction reverted - check STIM token contract and balance"
       }
@@ -390,7 +403,7 @@ const CreateEvent = () => {
   useEffect(() => {
     if (createEventError) {
       console.error("Create event error:", createEventError);
-      let errorMessage = "Event creation failed";
+      let errorMessage = "Event creation failed" + createEventError.message;
 
       if (
         createEventError.message.includes("User rejected") ||
@@ -398,11 +411,11 @@ const CreateEvent = () => {
       ) {
         errorMessage = "Event creation cancelled";
       } else if (createEventError.message.includes("insufficient funds")) {
-        errorMessage = "Low ETH balance. You need ETH for gas fees.";
+        errorMessage = "Low CELO balance. You need CELO for gas fees.";
       } else if (
         createEventError.message.includes("gas required exceeds allowance")
       ) {
-        errorMessage = "Low ETH balance. You need ETH for gas fees.";
+        errorMessage = "Low CELO balance. You need CELO for gas fees.";
       } else if (createEventError.message.includes("execution reverted")) {
         errorMessage = "Transaction reverted - check your inputs and try again";
       }
@@ -559,7 +572,6 @@ const CreateEvent = () => {
           endTimeUnix,
           formData.tokenAddress,
         ],
-        gas: 2000000n,
       });
     } catch (error) {
       console.error("Event creation failed:", error);
@@ -571,9 +583,9 @@ const CreateEvent = () => {
       ) {
         errorMessage = "Event creation cancelled";
       } else if (error.message.includes("insufficient funds")) {
-        errorMessage = "Low ETH balance. You need ETH for gas fees.";
+        errorMessage = "Low CELO balance. You need CELO for gas fees.";
       } else if (error.message.includes("gas required exceeds allowance")) {
-        errorMessage = "Low ETH balance. You need ETH for gas fees.";
+        errorMessage = "Low CELO balance. You need CELO for gas fees.";
       } else {
         errorMessage = `Event creation failed: ${error.message}`;
       }
@@ -607,12 +619,12 @@ const CreateEvent = () => {
       return;
     }
 
-    if (chainId !== celoAlfajores.id) {
+    if (chainId !== celoSepolia.id) {
       try {
-        await switchChain({ chainId: celoAlfajores.id });
+        await switchChain({ chainId: celoSepolia.id });
         return; // Return and let the user click again after switching
       } catch (error) {
-        setFormError("Please switch to Celo Alfajores");
+        setFormError("Please switch to Celo Sepolia");
         toast.error("Failed to switch network. Please switch manually.");
         return;
       }
@@ -717,6 +729,33 @@ const CreateEvent = () => {
     return `${Number(percentage) / 100}%`;
   };
 
+  // If connected but on wrong network, show blocking UI or warning
+  if (isConnected && chainId && chainId !== celoSepolia.id) {
+    console.log("Current Chain:", chainId, "Target Chain:", celoSepolia.id);
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4 text-white bg-gray-900">
+        <div className="p-8 text-center bg-gray-800 rounded-lg shadow-xl">
+          <h2 className="mb-4 text-2xl font-bold text-red-500">Wrong Network</h2>
+          <p className="mb-6">Please switch to Celo Sepolia to create an event.</p>
+          <button
+            onClick={async () => {
+              try {
+                console.log("Manually switching to Celo Sepolia...", celoSepolia.id);
+                await switchChain({ chainId: celoSepolia.id });
+              } catch (error) {
+                console.error("Manual switch failed:", error);
+                toast.error(`Switch failed: ${error.message}`);
+              }
+            }}
+            className="px-6 py-3 font-bold text-black transition-colors rounded-full bg-cyan-400 hover:bg-cyan-300"
+          >
+            Switch to Celo Sepolia
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative min-h-screen p-4 md:p-6 lg:p-8">
       <div className="fixed bottom-0 left-0 w-full h-[700px] md:h-screen -z-10">
@@ -734,7 +773,7 @@ const CreateEvent = () => {
               CREATE EVENT
             </span>
             <div className="px-2 py-1 text-xs text-green-300 bg-green-500 border border-green-500 rounded bg-opacity-20">
-              Celo Alfajores
+              Celo Sepolia
             </div>
           </div>
           <button
@@ -877,7 +916,7 @@ const CreateEvent = () => {
                       disabled={
                         transactionState.loading ||
                         isCreateLoading ||
-                        chainId !== celoAlfajores.id
+                        chainId !== celoSepolia.id
                       }
                     >
                       {getButtonText()}

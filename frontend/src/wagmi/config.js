@@ -1,13 +1,26 @@
 import { http, createConfig, fallback } from "wagmi";
-import { celoAlfajores } from "wagmi/chains";
 import { injected, metaMask, walletConnect } from "wagmi/connectors";
+
+// Manually define Celo Sepolia since it's not in wagmi/chains yet
+export const celoSepolia = {
+  id: 11142220,
+  name: "Celo Sepolia",
+  nativeCurrency: { name: "Celo", symbol: "CELO", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://forno.celo-sepolia.celo-testnet.org"] },
+  },
+  blockExplorers: {
+    default: { name: "CeloScan", url: "https://sepolia.celoscan.io" },
+  },
+  testnet: true,
+};
 
 // Get your WalletConnect Project ID from https://cloud.walletconnect.com/
 const projectId = import.meta.env.VITE_REOWN_PROJECT_ID;
 
-// Enhanced RPC configuration for Celo Alfajores reliability
+// Enhanced RPC configuration for Celo Sepolia reliability
 export const config = createConfig({
-  chains: [celoAlfajores],
+  chains: [celoSepolia],
   connectors: [
     injected(),
     metaMask(),
@@ -23,8 +36,8 @@ export const config = createConfig({
     }),
   ],
   transports: {
-    [celoAlfajores.id]: fallback([
-      // Primary: Official Celo Alfajores RPC
+    [celoSepolia.id]: fallback([
+      // Primary: Official Celo Sepolia RPC
       http("https://forno.celo-sepolia.celo-testnet.org", {
         timeout: 20_000,
         retryCount: 5,
@@ -32,16 +45,9 @@ export const config = createConfig({
       }),
 
       // Secondary: DRPC
-      http("https://celo-alfajores.drpc.org", {
+      http("https://celo-sepolia.drpc.org", {
         timeout: 20_000,
         retryCount: 3,
-        retryDelay: ({ count }) => ~~(1 << count) * 500,
-      }),
-
-      // Tertiary: Ankr (often rate limited but good backup)
-      http("https://rpc.ankr.com/celo_sepolia", {
-        timeout: 20_000,
-        retryCount: 2,
         retryDelay: ({ count }) => ~~(1 << count) * 500,
       }),
     ], {
@@ -73,17 +79,17 @@ export const config = createConfig({
   cacheTime: 30_000,          // 30 second cache time
 });
 
-export const SUPPORTED_CHAIN_ID = celoAlfajores.id; // 44787
-export const SUPPORTED_CHAIN = celoAlfajores;
+export const SUPPORTED_CHAIN_ID = celoSepolia.id; // 11142220
+export const SUPPORTED_CHAIN = celoSepolia;
 
 // Network validation helper
 export const isValidNetwork = (chainId) => {
-  return chainId === celoAlfajores.id;
+  return chainId === celoSepolia.id;
 };
 
 // Get network name helper
 export const getNetworkName = (chainId) => {
-  return chainId === celoAlfajores.id ? "Celo Alfajores" : "Unsupported Network";
+  return chainId === celoSepolia.id ? "Celo Sepolia" : "Unsupported Network";
 };
 
 // Enhanced error handling helper
@@ -108,7 +114,6 @@ export const handleRpcError = (error) => {
 // RPC health check utility
 export const checkRpcHealth = async () => {
   const healthChecks = [
-    "https://rpc.ankr.com/celo_sepolia",
     "https://forno.celo-sepolia.celo-testnet.org",
   ];
 

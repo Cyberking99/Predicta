@@ -4,9 +4,8 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAccount, useBalance, useReadContract } from "wagmi";
 import { readContract } from "wagmi/actions";
-import { config } from "../../wagmi/config";
+import { config, celoSepolia } from "../../wagmi/config";
 import { toast } from "react-toastify";
-import { celoAlfajores } from "wagmi/chains";
 import { useClaimReward } from "../../../hooks/staking/useClaimReward";
 import { isAddress } from "viem";
 
@@ -184,7 +183,7 @@ const EnhancedPredictionWin = () => {
   const { data: stimBalanceData } = useBalance({
     address: address,
     token: USDT_ADDRESS,
-    chainId: celoAlfajores.id,
+    chainId: celoSepolia.id,
     enabled: !!address,
     refetchInterval: 30000,
   });
@@ -193,7 +192,7 @@ const EnhancedPredictionWin = () => {
   const { data: usdcBalanceData } = useBalance({
     address: address,
     token: USDC_ADDRESS,
-    chainId: celoAlfajores.id,
+    chainId: celoSepolia.id,
     enabled: !!address,
     refetchInterval: 30000,
   });
@@ -936,8 +935,8 @@ const EnhancedPredictionWin = () => {
             <div className="flex justify-center">
               <div
                 className={`w-16 h-16 bg-gradient-to-br ${claimColor === "green"
-                    ? "from-green-400 to-green-600"
-                    : "from-blue-400 to-blue-600"
+                  ? "from-green-400 to-green-600"
+                  : "from-blue-400 to-blue-600"
                   } rounded-full flex items-center justify-center`}
               >
                 <img
@@ -1015,8 +1014,8 @@ const EnhancedPredictionWin = () => {
                 <div className="flex items-center justify-center mt-3">
                   <div
                     className={`border rounded-full px-4 py-2 ${canClaimReward
-                        ? "bg-green-500/20 border-green-500/30"
-                        : "bg-blue-500/20 border-blue-500/30"
+                      ? "bg-green-500/20 border-green-500/30"
+                      : "bg-blue-500/20 border-blue-500/30"
                       }`}
                   >
                     <p
@@ -1143,8 +1142,8 @@ const EnhancedPredictionWin = () => {
           {currentEventData && statusInfo && (
             <div
               className={`border rounded-lg p-3 mb-6 ${canClaimReward
-                  ? "bg-green-500/10 border-green-500/30"
-                  : "bg-blue-500/10 border-blue-500/30"
+                ? "bg-green-500/10 border-green-500/30"
+                : "bg-blue-500/10 border-blue-500/30"
                 }`}
             >
               <div className="flex items-center justify-between">

@@ -14,16 +14,16 @@ import {
 } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { toast } from "react-toastify";
-import { celoAlfajores } from "wagmi/chains";
+import { celoSepolia } from "../wagmi/config";
 import { isMiniPay } from "../utils/chainUtils";
 
-// MAINNET ADDRESSES ONLY - Celo Alfajores
+// MAINNET ADDRESSES ONLY - Celo Sepolia
 const CUSD_TOKEN_ADDRESS = import.meta.env.VITE_CUSD_ADDRESS;
 const USDC_TOKEN_ADDRESS = import.meta.env.VITE_USDC_ADDRESS;
 
-// Token configurations for Celo Alfajores only
+// Token configurations for Celo Sepolia only
 const NETWORK_TOKENS = {
-  [celoAlfajores.id]: [
+  [celoSepolia.id]: [
     { symbol: "USDC", address: USDC_TOKEN_ADDRESS, decimals: 6 },
     { symbol: "cUSD", address: CUSD_TOKEN_ADDRESS, decimals: 18 },
   ],
@@ -76,22 +76,22 @@ const Wallet = ({ setWalletBalance }) => {
   const isLoadingBalance = isLoadingCusd || isLoadingUsdc;
   const hasBalanceError = cusdError || usdcError;
 
-  // Auto-switch to Celo Alfajores when connected to any other network
+  // Auto-switch to Celo Sepolia when connected to any other network
   useEffect(() => {
     if (isConnected && chainId && !hasTriedAutoSwitch.current) {
-      if (chainId !== celoAlfajores.id) {
-        console.log("🔄 Auto-switching to Celo Alfajores from network:", chainId);
+      if (chainId !== celoSepolia.id) {
+        console.log("🔄 Auto-switching to Celo Sepolia from network:", chainId);
         hasTriedAutoSwitch.current = true;
 
-        switchChain?.({ chainId: celoAlfajores.id })
+        switchChain?.({ chainId: celoSepolia.id })
           .then(() => {
-            console.log("✅ Successfully switched to Celo Alfajores");
-            toast.success("Switched to Celo Alfajores");
+            console.log("✅ Successfully switched to Celo Sepolia");
+            toast.success("Switched to Celo Sepolia");
           })
           .catch((error) => {
-            console.error("❌ Failed to switch to Celo Alfajores:", error);
+            console.error("❌ Failed to switch to Celo Sepolia:", error);
             toast.error(
-              "Please manually switch to Celo Alfajores for full functionality"
+              "Please manually switch to Celo Sepolia for full functionality"
             );
           })
           .finally(() => {
@@ -345,16 +345,16 @@ const Wallet = ({ setWalletBalance }) => {
   // Enhanced network name function
   const getNetworkName = () => {
     switch (chainId) {
-      case celoAlfajores.id:
-        return "Celo Alfajores";
+      case celoSepolia.id:
+        return "Celo Sepolia";
       default:
         return "Unsupported Network";
     }
   };
 
-  // Check if current network is supported (Celo Alfajores only)
+  // Check if current network is supported (Celo Sepolia only)
   const isSupportedNetwork = () => {
-    return chainId === celoAlfajores.id;
+    return chainId === celoSepolia.id;
   };
 
   // Check if we should show network warning
@@ -365,8 +365,8 @@ const Wallet = ({ setWalletBalance }) => {
   // Handle manual network switch
   const handleSwitchToMainnet = async () => {
     try {
-      await switchChain({ chainId: celoAlfajores.id });
-      toast.success("Switched to Celo Alfajores");
+      await switchChain({ chainId: celoSepolia.id });
+      toast.success("Switched to Celo Sepolia");
     } catch (error) {
       console.error("❌ Failed to switch network:", error);
       toast.error("Failed to switch network. Please try manually.");
@@ -404,7 +404,7 @@ const Wallet = ({ setWalletBalance }) => {
         {isConnected && (
           <p className="max-w-2xl mx-5 mx-auto mb-4 text-sm text-center text-white lg:text-base lg:mb-8">
             Connect Your EVM Compatible Crypto Wallet to Deposit & Withdraw CUSD
-            and USDC on Celo Alfajores.
+            and USDC on Celo Sepolia.
           </p>
         )}
 
@@ -479,18 +479,18 @@ const Wallet = ({ setWalletBalance }) => {
                       <div className="absolute inset-0 bg-[#18DDF7]/20 rounded-full blur-md"></div>
                       <div className="relative flex items-center gap-2 px-3 py-1 lg:px-4 lg:py-1.5 bg-[#18DDF7]/10 border border-[#18DDF7]/50 rounded-full backdrop-blur-sm">
                         <div
-                          className={`w-2 h-2 rounded-full animate-pulse shadow-lg ${chainId === celoAlfajores.id
+                          className={`w-2 h-2 rounded-full animate-pulse shadow-lg ${chainId === celoSepolia.id
                             ? "bg-green-400 shadow-green-400/50"
                             : "bg-red-400 shadow-red-400/50"
                             }`}
                         ></div>
                         <span
-                          className={`text-xs lg:text-sm font-medium ${chainId === celoAlfajores.id
+                          className={`text-xs lg:text-sm font-medium ${chainId === celoSepolia.id
                             ? "text-green-400"
                             : "text-red-400"
                             }`}
                         >
-                          {getNetworkName()}
+                          {getNetworkName(chainId)}
                         </span>
                       </div>
                     </div>
@@ -602,13 +602,13 @@ const Wallet = ({ setWalletBalance }) => {
               {shouldShowNetworkWarning() && (
                 <div className="relative z-10 w-full p-3 mt-4 border rounded-lg lg:p-4 bg-red-900/20 border-red-600/30 backdrop-blur-sm">
                   <p className="mb-2 text-xs text-center text-red-300 lg:text-sm">
-                    ⚠️ Unsupported network detected. This app only works on Celo Alfajores.
+                    ⚠️ Unsupported network detected. This app only works on Celo Sepolia.
                   </p>
                   <button
                     onClick={handleSwitchToMainnet}
                     className="bg-[#18DDF7] hover:bg-[#18DDF7]/80 text-black font-medium py-2 px-6 rounded-lg text-xs lg:text-sm mx-auto block transition-colors"
                   >
-                    Switch to Celo Alfajores
+                    Switch to Celo Sepolia
                   </button>
                 </div>
               )}

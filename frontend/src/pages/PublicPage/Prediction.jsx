@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
-import { celoAlfajores } from "wagmi/chains";
+import { celoSepolia } from "../../wagmi/config";
 import { toast } from "react-toastify";
 import USDT from "../../assets/images/pngs/usdt.png";
 import USDC from "../../assets/images/svgs/USDC.svg";
@@ -48,13 +48,24 @@ const Prediction = () => {
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
 
-  // Auto-switch to Celo Alfajores
+  // Auto-switch to Celo Sepolia and enforce it
   useEffect(() => {
-    if (isConnected && chainId && chainId !== celoAlfajores.id) {
-      toast.warn("Switching to Celo Alfajores...");
-      switchChain({ chainId: celoAlfajores.id });
-    }
+    const enforceNetwork = async () => {
+      if (isConnected && chainId && chainId !== celoSepolia.id) {
+        try {
+          console.log("Wrong network detected. Requesting switch to Celo Sepolia...");
+          await switchChain({ chainId: celoSepolia.id });
+        } catch (error) {
+          console.error("Failed to switch network:", error);
+          toast.error("Please switch your wallet to Celo Sepolia to continue.");
+        }
+      }
+    };
+
+    enforceNetwork();
   }, [isConnected, chainId, switchChain]);
+
+
 
   // Extract data from location state with fallbacks
   const {
@@ -943,6 +954,32 @@ const Prediction = () => {
     tokenSymbol: tokenSymbol,
     category: displayEventData.category,
   });
+
+  // If connected but on wrong network, show blocking UI or warning
+  if (isConnected && chainId && chainId !== celoSepolia.id) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4 text-white bg-gray-900">
+        <div className="p-8 text-center bg-gray-800 rounded-lg shadow-xl">
+          <h2 className="mb-4 text-2xl font-bold text-red-500">Wrong Network</h2>
+          <p className="mb-6">Please switch to Celo Sepolia to view predictions.</p>
+          <button
+            onClick={async () => {
+              try {
+                console.log("Manually switching to Celo Sepolia...", celoSepolia.id);
+                await switchChain({ chainId: celoSepolia.id });
+              } catch (error) {
+                console.error("Manual switch failed:", error);
+                toast.error(`Switch failed: ${error.message}`);
+              }
+            }}
+            className="px-6 py-3 font-bold text-black transition-colors rounded-full bg-cyan-400 hover:bg-cyan-300"
+          >
+            Switch to Celo Sepolia
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Main UI
   return (
