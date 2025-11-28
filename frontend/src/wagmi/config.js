@@ -25,26 +25,33 @@ export const config = createConfig({
   transports: {
     [celoAlfajores.id]: fallback([
       // Primary: Official Celo Alfajores RPC
-      http("https://rpc.ankr.com/celo_sepolia", {
-        timeout: 12_000,
-        retryCount: 3,
-        retryDelay: ({ count }) => ~~(1 << count) * 400,
+      http("https://forno.celo-sepolia.celo-testnet.org", {
+        timeout: 20_000,
+        retryCount: 5,
+        retryDelay: ({ count }) => ~~(1 << count) * 500,
       }),
 
-      // Secondary: Public Node
-      http("https://alfajores-forno.celo-testnet.org", {
-        timeout: 12_000,
+      // Secondary: DRPC
+      http("https://celo-alfajores.drpc.org", {
+        timeout: 20_000,
+        retryCount: 3,
+        retryDelay: ({ count }) => ~~(1 << count) * 500,
+      }),
+
+      // Tertiary: Ankr (often rate limited but good backup)
+      http("https://rpc.ankr.com/celo_sepolia", {
+        timeout: 20_000,
         retryCount: 2,
-        retryDelay: ({ count }) => ~~(1 << count) * 400,
+        retryDelay: ({ count }) => ~~(1 << count) * 500,
       }),
     ], {
       rank: {
-        interval: 60_000, // Re-rank every minute
-        sampleCount: 10,   // Use 10 samples for ranking
-        timeout: 5_000,    // 5 second timeout for ranking
+        interval: 30_000, // Re-rank every 30 seconds
+        sampleCount: 5,    // Use 5 samples for ranking
+        timeout: 3_000,    // 3 second timeout for ranking
       },
-      retryCount: 2,
-      retryDelay: ({ count }) => ~~(1 << count) * 200,
+      retryCount: 5,
+      retryDelay: ({ count }) => ~~(1 << count) * 500,
     }),
   },
   // Optimized configuration for better performance
@@ -102,7 +109,7 @@ export const handleRpcError = (error) => {
 export const checkRpcHealth = async () => {
   const healthChecks = [
     "https://rpc.ankr.com/celo_sepolia",
-    "https://alfajores-forno.celo-testnet.org",
+    "https://forno.celo-sepolia.celo-testnet.org",
   ];
 
   const results = await Promise.allSettled(
