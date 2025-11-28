@@ -87,7 +87,7 @@ const Home = () => {
 
   // Get correct token icon based on token address
   const getTokenIcon = (tokenAddress) => {
-    if (!tokenAddress) return USDT;
+    if (!tokenAddress) return USDC;
 
     const normalizedAddress = tokenAddress.toLowerCase();
     const config = TOKEN_CONFIG[normalizedAddress];
@@ -99,10 +99,10 @@ const Home = () => {
       normalizedAddress === "0x0" ||
       normalizedAddress === "0x0000000000000000000000000000000000000000"
     ) {
-      return USDT;
+      return USDC;
     }
 
-    return USDT;
+    return USDC;
   };
 
   // FIXED: Function to convert BigInt to readable format with correct decimals per token
@@ -506,9 +506,8 @@ const Home = () => {
                 />
                 <div className="relative">
                   <ChevronDown
-                    className={`w-5 h-5 md:w-6 md:h-6 text-gray-400 ml-2 cursor-pointer transition-transform ${
-                      showCategoryDropdown ? "rotate-180" : ""
-                    }`}
+                    className={`w-5 h-5 md:w-6 md:h-6 text-gray-400 ml-2 cursor-pointer transition-transform ${showCategoryDropdown ? "rotate-180" : ""
+                      }`}
                     onClick={() =>
                       setShowCategoryDropdown(!showCategoryDropdown)
                     }
@@ -518,11 +517,10 @@ const Home = () => {
                       {categoryList.map((category) => (
                         <div
                           key={category.id}
-                          className={`px-4 py-2 md:py-3 cursor-pointer hover:bg-[#252B4F] transition-colors ${
-                            selectedCategory === category.id
-                              ? "bg-[#252B4F] text-cyan-400"
-                              : "text-white"
-                          }`}
+                          className={`px-4 py-2 md:py-3 cursor-pointer hover:bg-[#252B4F] transition-colors ${selectedCategory === category.id
+                            ? "bg-[#252B4F] text-cyan-400"
+                            : "text-white"
+                            }`}
                           onClick={() => handleCategorySelect(category.id)}
                         >
                           {category.label}

@@ -5,7 +5,6 @@ import { celoSepolia } from "../../wagmi/config";
 import { toast } from "react-toastify";
 import USDT from "../../assets/images/pngs/usdt.png";
 import USDC from "../../assets/images/svgs/USDC.svg";
-import STIM from "../../assets/images/pngs/stim-coin.png";
 import Close from "../../assets/images/svgs/x-close.svg";
 import star from "../../assets/images/svgs/star.svg";
 import PredictionCard from "../../components/ui/PredictionCard";
@@ -18,8 +17,8 @@ const DEFAULT_TOKEN_ADDRESS = import.meta.env.VITE_USDT_ADDRESS;
 // Token configuration mapping
 const TOKEN_CONFIG = {
   [import.meta.env.VITE_USDT_ADDRESS?.toLowerCase()]: {
-    name: "USDT",
-    symbol: "USDT",
+    name: "cUSD",
+    symbol: "cUSD",
     decimals: 18,
     icon: USDT,
   },
@@ -64,8 +63,6 @@ const Prediction = () => {
 
     enforceNetwork();
   }, [isConnected, chainId, switchChain]);
-
-
 
   // Extract data from location state with fallbacks
   const {

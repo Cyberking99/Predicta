@@ -574,6 +574,7 @@ const CreateEvent = () => {
           endTimeUnix,
           formData.tokenAddress,
         ],
+        gas: 3000000n,
       });
     } catch (error) {
       console.error("Event creation failed:", error);
