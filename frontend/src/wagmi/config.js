@@ -32,7 +32,7 @@ export const config = createConfig({
       }),
 
       // Secondary: Public Node
-      http("https://celo-alfajores.publicnode.com", {
+      http("https://alfajores-forno.celo-testnet.org", {
         timeout: 12_000,
         retryCount: 2,
         retryDelay: ({ count }) => ~~(1 << count) * 400,
@@ -103,7 +103,6 @@ export const checkRpcHealth = async () => {
   const healthChecks = [
     "https://rpc.ankr.com/celo_sepolia",
     "https://alfajores-forno.celo-testnet.org",
-    "https://celo-alfajores.publicnode.com",
   ];
 
   const results = await Promise.allSettled(
