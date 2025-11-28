@@ -18,7 +18,7 @@ const TimeTokenForm = ({
 }) => {
   // Users can pick between USDC and CUSD for staking
   const allowedTokens = TOKENS.filter(
-    (token) => token.symbol === "USDC" || token.symbol === "CUSD"
+    (token) => token.symbol === "USDC" || token.symbol.toUpperCase() === "CUSD"
   );
 
   const selectedToken = getTokenInfo(formData.tokenAddress);
@@ -91,7 +91,7 @@ const TimeTokenForm = ({
                     {selectedToken.symbol}
                   </span>
                   <span className="ml-2 text-sm text-gray-400">
-                    {selectedToken.symbol === "CUSD"
+                    {selectedToken.symbol.toUpperCase() === "CUSD"
                       ? "cUSD Token"
                       : "USDC Token"}
                   </span>
@@ -123,7 +123,7 @@ const TimeTokenForm = ({
                   <div className="flex-1">
                     <div className="font-medium text-white">{token.symbol}</div>
                     <div className="text-sm text-gray-400">
-                      {token.symbol === "CUSD" ? "cUSD" : "USDC"}
+                      {token.symbol.toUpperCase() === "CUSD" ? "cUSD" : "USDC"}
                     </div>
                   </div>
                   {formData.tokenAddress === token.address && (

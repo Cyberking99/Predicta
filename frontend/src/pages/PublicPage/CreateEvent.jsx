@@ -96,6 +96,8 @@ const STAKING_TOKENS = [
   },
 ];
 
+console.log("staking", STAKING_TOKENS);
+
 // CUSD token address for creator fees (always CUSD)
 const CREATOR_FEE_TOKEN = import.meta.env.VITE_CUSD_ADDRESS;
 
