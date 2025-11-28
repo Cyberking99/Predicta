@@ -411,6 +411,14 @@ const Wallet = ({ setWalletBalance }) => {
             <div className="bg-[#FF0000]/10 border border-[#FF0000]/30 rounded-full px-4 py-1 flex items-center gap-2">
               <span className="text-[#FF0000] font-bold text-xs">OPERA MINIPAY DETECTED</span>
             </div>
+            <a
+              href="https://minipay.opera.com/add_cash"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-4 bg-[#FF0000] hover:bg-[#FF0000]/80 text-white font-bold py-1 px-4 rounded-full text-xs transition-colors"
+            >
+              Add Cash
+            </a>
           </div>
         )}
 
