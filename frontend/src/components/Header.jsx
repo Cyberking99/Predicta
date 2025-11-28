@@ -16,8 +16,10 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 // Import the updated blockies utility
 import {
   generateBlockiesAvatar,
+  generateBlockiesAvatar,
   getCurrentAvatar,
 } from "../utils/blockiesAvatar";
+import { isMiniPay } from "../utils/chainUtils";
 
 // Profile Avatar Component
 const ProfileAvatar = ({ address, className = "" }) => {
@@ -405,9 +407,8 @@ const Header = ({ walletBalance, setWalletBalance }) => {
               {/* Manual refresh button */}
               <button
                 onClick={handleManualRefresh}
-                className={`ml-1 text-cyan-400 hover:text-cyan-300 text-xs opacity-70 hover:opacity-100 transition-all duration-200 ${
-                  isBalanceLoading ? "animate-spin" : "hover:scale-110"
-                }`}
+                className={`ml-1 text-cyan-400 hover:text-cyan-300 text-xs opacity-70 hover:opacity-100 transition-all duration-200 ${isBalanceLoading ? "animate-spin" : "hover:scale-110"
+                  }`}
                 title="Refresh token balances"
                 disabled={isBalanceLoading}
               >
@@ -466,7 +467,7 @@ const Header = ({ walletBalance, setWalletBalance }) => {
                               >
                                 <div className="absolute inset-0 bg-gradient-to-r from-[#18DDF7]/20 to-transparent rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <span className="relative flex items-center gap-2">
-                                  Connect Wallet
+                                  {isMiniPay() ? "Connect MiniPay" : "Connect Wallet"}
                                 </span>
                               </button>
                             );

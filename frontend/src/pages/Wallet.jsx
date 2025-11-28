@@ -15,6 +15,7 @@ import {
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { toast } from "react-toastify";
 import { celoAlfajores } from "wagmi/chains";
+import { isMiniPay } from "../utils/chainUtils";
 
 // MAINNET ADDRESSES ONLY - Celo Alfajores
 const CUSD_TOKEN_ADDRESS = import.meta.env.VITE_CUSD_ADDRESS;
@@ -405,6 +406,14 @@ const Wallet = ({ setWalletBalance }) => {
           and USDC on Celo Alfajores.
         </p>
 
+        {isMiniPay() && (
+          <div className="flex justify-center mb-6">
+            <div className="bg-[#FF0000]/10 border border-[#FF0000]/30 rounded-full px-4 py-1 flex items-center gap-2">
+              <span className="text-[#FF0000] font-bold text-xs">OPERA MINIPAY DETECTED</span>
+            </div>
+          </div>
+        )}
+
         {/* Enhanced glowing wallet card with desktop optimization */}
         <div className="relative max-w-md mx-auto lg:max-w-4xl">
           {/* Glowing border effect */}
@@ -463,14 +472,14 @@ const Wallet = ({ setWalletBalance }) => {
                       <div className="relative flex items-center gap-2 px-3 py-1 lg:px-4 lg:py-1.5 bg-[#18DDF7]/10 border border-[#18DDF7]/50 rounded-full backdrop-blur-sm">
                         <div
                           className={`w-2 h-2 rounded-full animate-pulse shadow-lg ${chainId === celoAlfajores.id
-                              ? "bg-green-400 shadow-green-400/50"
-                              : "bg-red-400 shadow-red-400/50"
+                            ? "bg-green-400 shadow-green-400/50"
+                            : "bg-red-400 shadow-red-400/50"
                             }`}
                         ></div>
                         <span
                           className={`text-xs lg:text-sm font-medium ${chainId === celoAlfajores.id
-                              ? "text-green-400"
-                              : "text-red-400"
+                            ? "text-green-400"
+                            : "text-red-400"
                             }`}
                         >
                           {getNetworkName()}

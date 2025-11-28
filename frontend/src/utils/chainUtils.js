@@ -26,6 +26,14 @@ export const isChainSupported = (chainId) => {
 };
 
 /**
+ * Check if running in Opera MiniPay
+ * @returns {boolean} - True if running in MiniPay
+ */
+export const isMiniPay = () => {
+  return typeof window !== 'undefined' && window.ethereum && (window.ethereum.isMiniPay || window.ethereum.isOpera);
+};
+
+/**
  * Get chain explorer URL
  * @param {number} chainId - The blockchain network ID
  * @returns {string} - The block explorer URL
