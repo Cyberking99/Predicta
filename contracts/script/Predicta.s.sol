@@ -22,6 +22,7 @@ contract PredictaScript is Script {
         predicta.addCategory("Entertainments", "Events on entertainments");
         predicta.addCategory("Crypto", "Events on crypto");
         predicta.addToken(0x01C5C0122039549AD1493B8220cABEdD739BC44E);
+        predicta.addToken(0xdE9e4C3ce781b4bA68120d6261cbad65ce0aB00b);
         
         vm.stopBroadcast();
     }

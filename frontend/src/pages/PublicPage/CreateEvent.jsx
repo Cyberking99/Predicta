@@ -784,7 +784,7 @@ const CreateEvent = () => {
           </button>
         </div>
 
-        {isConnected && isAdminOrModerator && (
+        {/* {isConnected && isAdminOrModerator && (
           <div className="p-3 mb-6 text-green-300 bg-green-500 border border-green-500 rounded-lg bg-opacity-20">
             <p className="font-medium">
               {isAdmin ? "Admin" : "Moderator"} Account Detected
@@ -793,7 +793,7 @@ const CreateEvent = () => {
               tokens!
             </p>
           </div>
-        )}
+        )} */}
 
         {/*isConnected && !isAdminOrModerator && stimTokenBalance && creatorStakeAmount && BigInt(stimTokenBalance) < BigInt(creatorStakeAmount) && (
           <div className="bg-red-500 bg-opacity-20 border border-red-500 text-red-300 p-3 rounded-lg mb-6">

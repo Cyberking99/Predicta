@@ -71,8 +71,8 @@ const TimeTokenForm = ({
             {showInfoTooltip.token && (
               <div className="absolute z-10 w-64 bg-[#1A1F3F] border border-cyan-700 p-3 rounded-lg text-sm text-white -right-2 top-6">
                 Select which token users will stake when betting on this event.
-                You can choose between CUSD and USDC. Note: The creator fee is
-                always paid in CUSD tokens regardless of your staking token
+                You can choose between cUSD and USDC. Note: The creator fee is
+                always paid in cUSD tokens regardless of your staking token
                 choice.
               </div>
             )}
@@ -92,8 +92,8 @@ const TimeTokenForm = ({
                   </span>
                   <span className="ml-2 text-sm text-gray-400">
                     {selectedToken.symbol === "CUSD"
-                      ? "CUSD Token"
-                      : "USD Coin"}
+                      ? "cUSD Token"
+                      : "USDC Token"}
                   </span>
                 </div>
               </div>
@@ -123,7 +123,7 @@ const TimeTokenForm = ({
                   <div className="flex-1">
                     <div className="font-medium text-white">{token.symbol}</div>
                     <div className="text-sm text-gray-400">
-                      {token.symbol === "CUSD" ? "CUSD" : "USDC"}
+                      {token.symbol === "CUSD" ? "cUSD" : "USDC"}
                     </div>
                   </div>
                   {formData.tokenAddress === token.address && (
@@ -245,8 +245,8 @@ const TimeTokenForm = ({
         <div className="p-3 text-blue-300 bg-blue-500 border border-blue-500 rounded-lg bg-opacity-20">
           <p className="font-medium">
             {isAdminOrModerator
-              ? "Creating your event as admin/moderator... No creator fee required."
-              : "Creating your event... Please confirm the CUSD creator fee transaction in your wallet."}
+              ? "Creating your event..."
+              : "Creating your event..."}
           </p>
         </div>
       )}
