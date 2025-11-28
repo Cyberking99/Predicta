@@ -398,26 +398,26 @@ const Wallet = ({ setWalletBalance }) => {
         </div>
 
         <h1 className="mb-2 text-xl font-semibold text-center text-white lg:text-3xl lg:mb-4">
-          {isConnected ? "Your Crypto Wallet" : "Connect Your Crypto Wallet"}
+          {isConnected ? "Your Wallet" : "Connect Your Wallet"}
         </h1>
 
-        <p className="max-w-2xl mx-5 mx-auto mb-4 text-sm text-center text-white lg:text-base lg:mb-8">
-          Connect Your EVM Compatible Crypto Wallet to Deposit & Withdraw CUSD
-          and USDC on Celo Alfajores.
-        </p>
+        {isConnected && (
+          <p className="max-w-2xl mx-5 mx-auto mb-4 text-sm text-center text-white lg:text-base lg:mb-8">
+            Connect Your EVM Compatible Crypto Wallet to Deposit & Withdraw CUSD
+            and USDC on Celo Alfajores.
+          </p>
+        )}
+
 
         {isMiniPay() && (
           <div className="flex justify-center mb-6">
-            <div className="bg-[#FF0000]/10 border border-[#FF0000]/30 rounded-full px-4 py-1 flex items-center gap-2">
-              <span className="text-[#FF0000] font-bold text-xs">OPERA MINIPAY DETECTED</span>
-            </div>
             <a
               href="https://minipay.opera.com/add_cash"
               target="_blank"
               rel="noopener noreferrer"
-              className="ml-4 bg-[#FF0000] hover:bg-[#FF0000]/80 text-white font-bold py-1 px-4 rounded-full text-xs transition-colors"
+              className="bg-[#18DDF7] hover:bg-[#18DDF7]/80 text-black font-bold py-2 px-6 rounded-full text-sm transition-colors shadow-lg hover:shadow-[#18DDF7]/20 flex items-center gap-2"
             >
-              Add Cash
+              Fund your account
             </a>
           </div>
         )}
