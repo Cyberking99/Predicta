@@ -575,6 +575,7 @@ const CreateEvent = () => {
           formData.tokenAddress,
         ],
         gas: 3000000n,
+        feeCurrency: import.meta.env.VITE_CUSD_ADDRESS,
       });
     } catch (error) {
       console.error("Event creation failed:", error);

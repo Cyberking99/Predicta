@@ -1,6 +1,8 @@
 import { http, createConfig, fallback } from "wagmi";
 import { injected, metaMask, walletConnect } from "wagmi/connectors";
 
+import { celo } from "viem/chains";
+
 // Manually define Celo Sepolia since it's not in wagmi/chains yet
 export const celoSepolia = {
   id: 11142220,
@@ -13,6 +15,8 @@ export const celoSepolia = {
     default: { name: "CeloScan", url: "https://sepolia.celoscan.io" },
   },
   testnet: true,
+  serializers: celo.serializers,
+  formatters: celo.formatters,
 };
 
 // Get your WalletConnect Project ID from https://cloud.walletconnect.com/
