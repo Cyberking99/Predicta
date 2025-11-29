@@ -106,8 +106,8 @@ const SUPPORTED_NETWORKS = [11142220];
 
 const CreateEvent = () => {
   const navigate = useNavigate();
-  const { isConnected, address } = useAccount();
-  const chainId = useChainId();
+  const { address, isConnected, chainId: accountChainId } = useAccount();
+  const chainId = accountChainId || useChainId(); // Fallback to global chainId if account not ready
   const { switchChain } = useSwitchChain();
   const config = useConfig();
 
@@ -248,7 +248,7 @@ const CreateEvent = () => {
 
   // Event creation
   const {
-    writeContract: createEvent,
+    writeContractAsync: createEvent,
     isPending: isCreateLoading,
     data: createEventHash,
     error: createEventError,
@@ -576,9 +576,22 @@ const CreateEvent = () => {
         ],
         gas: 3000000n,
         feeCurrency: import.meta.env.VITE_CUSD_ADDRESS,
+        chainId: celoSepolia.id,
       });
     } catch (error) {
       console.error("Event creation failed:", error);
+
+      // Handle chain mismatch error specifically
+      if (error.message.includes("Chain ID") || error.message.includes("chain mismatch")) {
+        try {
+          console.log("Chain mismatch detected, attempting switch to Celo Sepolia...");
+          await switchChain({ chainId: celoSepolia.id });
+          return;
+        } catch (switchError) {
+          console.error("Failed to switch chain:", switchError);
+        }
+      }
+
       let errorMessage = "Event creation failed";
 
       if (
